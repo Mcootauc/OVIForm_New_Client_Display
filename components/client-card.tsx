@@ -55,7 +55,7 @@ Age: ${getAge(client.birth_date)}
 Sex: ${client.sex}
 Spayed Neutered: ${client.spayed_or_neutered ? 'Yes' : 'No'}
 Color: ${client.color}
-Microchip: ${client.microchip}
+Microchip: ${client.microchip ? client.microchip : 'None'}
     `.trim();
 
         navigator.clipboard.writeText(clientInfo);

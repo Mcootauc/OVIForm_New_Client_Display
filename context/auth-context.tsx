@@ -25,7 +25,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const router = useRouter();
 
     // Only allow mcootauc@gmail.com to access the dashboard
-    const isAuthorized = user?.email === 'mcootauc@gmail.com';
+    const isAuthorized =
+        user?.email === 'mcootauc@gmail.com' ||
+        user?.email === 'mccdvm1@gmail.com';
 
     useEffect(() => {
         const setData = async () => {
