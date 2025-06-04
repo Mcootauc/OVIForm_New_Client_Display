@@ -123,13 +123,13 @@ export default function ClientGrid() {
     return (
         <div className="space-y-6">
             <div className="flex justify-between items-center">
-                <h2 className="text-xl font-semibold text-blue-300">
+                <h2 className="text-2xl font-semibold text-[#03045E]">
                     {clients.length} Client{clients.length !== 1 ? 's' : ''}
                 </h2>
                 <Button
                     variant="outline"
                     size="sm"
-                    className="text-blue-300 border-blue-800 hover:bg-blue-900/30 hover:text-blue-100"
+                    className="border-[#56A0AE] text-[#56A0AE] hover:bg-[#56A0AE] hover:text-white"
                     onClick={refreshClients}
                     disabled={refreshing}
                 >

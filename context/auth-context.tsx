@@ -28,7 +28,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const isAuthorized =
         user?.email === 'mcootauc@gmail.com' ||
         user?.email === 'mccdvm1@gmail.com' ||
-        user?.email === 'valleyvet1007@gmail.com';
+        user?.email === 'valleyvet1007@gmail.com' ||
+        user?.email === 'mccdvm1007@gmail.com';
 
     useEffect(() => {
         const setData = async () => {

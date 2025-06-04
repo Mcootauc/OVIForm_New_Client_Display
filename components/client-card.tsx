@@ -53,9 +53,15 @@ Species: ${getScientificName()}
 Breed: ${client.breed}
 Age: ${getAge(client.birth_date)}
 Sex: ${client.sex}
-Spayed Neutered: ${client.spayed_or_neutered ? 'Yes' : 'No'}
+Spayed Neutered: ${client.spayed_or_neutered}
 Color: ${client.color}
-Microchip: ${client.microchip ? client.microchip : ''}
+Microchip: ${
+            client.microchip &&
+            client.microchip !== 'No' &&
+            client.microchip !== 'Unknown'
+                ? client.microchip
+                : ''
+        }
     `.trim();
 
         navigator.clipboard.writeText(clientInfo);
@@ -72,9 +78,11 @@ Microchip: ${client.microchip ? client.microchip : ''}
 
     const getPetIcon = () => {
         const species = client.species?.toLowerCase();
-        if (species === 'dog') return <Dog className="h-5 w-5 text-blue-400" />;
-        if (species === 'cat') return <Cat className="h-5 w-5 text-blue-400" />;
-        return <AlertCircle className="h-5 w-5 text-blue-400" />;
+        if (species === 'dog')
+            return <Dog className="h-5 w-5 text-[#03045E]" />;
+        if (species === 'cat')
+            return <Cat className="h-5 w-5 text-[#03045E]" />;
+        return <AlertCircle className="h-5 w-5 text-[#03045E]" />;
     };
 
     const getScientificName = () => {
@@ -90,43 +98,66 @@ Microchip: ${client.microchip ? client.microchip : ''}
 
     return (
         <>
-            <Card className="overflow-hidden border-blue-900/20 bg-card/95 hover:bg-card/80 transition-colors">
-                <CardHeader className="bg-blue-950/30 pb-2">
+            <Card className="overflow-hidden border-[#737373]/20 bg-white hover:bg-white/95 transition-colors">
+                <CardHeader className="bg-[#737373]/5 pb-2">
                     <div className="flex justify-between items-start">
-                        <CardTitle className="text-xl font-bold text-primary-foreground">
+                        <CardTitle className="text-xl font-bold text-[#03045E]">
                             {client.owner_name}
                         </CardTitle>
                         <Badge
                             variant="outline"
-                            className="bg-blue-500/20 text-blue-300 border-blue-700"
+                            className="bg-[#56A0AE]/10 text-[#56A0AE] border-[#56A0AE]/30"
                         >
                             {client.initials}
                         </Badge>
                     </div>
-                    <div className="text-sm text-muted-foreground">
+                    <div className="text-sm text-[#737373]">
                         Added on {formatDate(client.created_at)}
                     </div>
                 </CardHeader>
                 <CardContent className="pt-4 pb-2">
                     <div className="space-y-4">
                         <div>
-                            <h3 className="text-sm font-medium text-blue-400 mb-1">
+                            <h3 className="text-sm font-medium text-[#03045E] mb-1">
                                 Owner Information
                             </h3>
                             <div className="space-y-1 text-sm">
-                                <p>{client.owner_name}</p>
-                                <p>{client.street}</p>
-                                <p>
+                                <div>
+                                    <span className="text-muted-foreground">
+                                        Name:
+                                    </span>{' '}
+                                    {client.owner_name}
+                                </div>
+                                <div>
+                                    <span className="text-muted-foreground">
+                                        Address:
+                                    </span>{' '}
+                                    {client.street}
+                                </div>
+                                <div>
+                                    <span className="text-muted-foreground"></span>{' '}
                                     {client.city}, {client.state}{' '}
                                     {client.zip_code}
-                                </p>
-                                <p>{phoneFormat(client.cell_phone)}</p>
-                                <p className="text-blue-300">{client.email}</p>
+                                </div>
+                                <div>
+                                    <span className="text-muted-foreground">
+                                        Phone:
+                                    </span>{' '}
+                                    {phoneFormat(client.cell_phone)}
+                                </div>
+                                <div>
+                                    <span className="text-muted-foreground">
+                                        Email:
+                                    </span>{' '}
+                                    <span className="text-blue-300">
+                                        {client.email}
+                                    </span>
+                                </div>
                             </div>
                         </div>
 
                         <div>
-                            <h3 className="text-sm font-medium text-blue-400 mb-1 flex items-center gap-1">
+                            <h3 className="text-sm font-medium text-[#03045E] mb-1 flex items-center gap-1">
                                 {getPetIcon()} Pet Information
                             </h3>
                             <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
@@ -170,7 +201,7 @@ Microchip: ${client.microchip ? client.microchip : ''}
                                     <span className="text-muted-foreground">
                                         Spayed/Neutered:
                                     </span>{' '}
-                                    {client.spayed_or_neutered ? 'Yes' : 'No'}
+                                    {client.spayed_or_neutered}
                                 </div>
                                 <div className="col-span-2">
                                     <span className="text-muted-foreground">
@@ -188,7 +219,7 @@ Microchip: ${client.microchip ? client.microchip : ''}
                     <Button
                         variant="outline"
                         size="sm"
-                        className="flex-1 text-blue-300 border-blue-800 hover:bg-blue-900/30 hover:text-blue-100"
+                        className="flex-1 text-[#56A0AE] border-[#56A0AE]/30 hover:bg-[#56A0AE] hover:text-white"
                         onClick={copyToClipboard}
                     >
                         {copied ? (
@@ -204,7 +235,7 @@ Microchip: ${client.microchip ? client.microchip : ''}
                     <Button
                         variant="destructive"
                         size="sm"
-                        className="bg-red-900/80 hover:bg-red-800 text-red-100"
+                        className="bg-[#C0091E] hover:bg-[#C0091E]/90 text-white"
                         onClick={() => setShowDeleteDialog(true)}
                         disabled={isDeleting}
                     >

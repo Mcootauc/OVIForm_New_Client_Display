@@ -12,68 +12,62 @@ import {
 import { LogOut } from 'lucide-react';
 
 export default function Header() {
-    const { user, signOut, isLoading } = useAuth();
+    const { user, signOut } = useAuth();
+
+    const getInitials = (name?: string) => {
+        if (!name) return '';
+        return name
+            .split(' ')
+            .map((n) => n[0])
+            .join('');
+    };
 
     return (
-        <header className="border-b border-blue-900/20 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-            <div className="container flex h-16 items-center justify-between py-4">
-                <div className="flex items-center gap-2">
-                    <span className="text-xl font-bold text-primary">
-                        New Client Information Manager
-                    </span>
-                </div>
-
-                <div className="flex items-center gap-4">
-                    {!isLoading &&
-                        (user ? (
-                            <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                    <Button
-                                        variant="ghost"
-                                        className="relative h-10 w-10 rounded-full"
-                                    >
-                                        <Avatar className="h-10 w-10 border border-blue-800/30">
-                                            <AvatarImage
-                                                src={
-                                                    user.user_metadata
-                                                        .avatar_url
-                                                }
-                                                alt={
-                                                    user.user_metadata.full_name
-                                                }
-                                            />
-                                            <AvatarFallback className="bg-blue-950 text-blue-200">
-                                                {user.user_metadata.full_name
-                                                    ?.split(' ')
-                                                    .map((n: string) => n[0])
-                                                    .join('') ||
-                                                    user.email?.[0].toUpperCase()}
-                                            </AvatarFallback>
-                                        </Avatar>
-                                    </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent
-                                    className="w-56"
-                                    align="end"
+        <header className="border-b border-[#737373]/20 bg-[#03045E] shadow-sm">
+            <div className="container mx-auto px-4 py-6">
+                <div className="flex items-center justify-between">
+                    <h1 className="text-3xl font-bold text-[#FEFEFE]">
+                        Pet Client Manager
+                    </h1>
+                    {user && (
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button
+                                    variant="ghost"
+                                    className="relative h-10 w-10 rounded-full hover:bg-white/10"
                                 >
-                                    <DropdownMenuItem className="flex flex-col items-start gap-1">
-                                        <p className="font-medium">
-                                            {user.user_metadata.full_name}
-                                        </p>
-                                        <p className="text-xs text-muted-foreground">
-                                            {user.email}
-                                        </p>
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem
-                                        onClick={() => signOut()}
-                                        className="text-red-500 focus:text-red-500"
-                                    >
-                                        <LogOut className="mr-2 h-4 w-4" />
-                                        <span>Log out</span>
-                                    </DropdownMenuItem>
-                                </DropdownMenuContent>
-                            </DropdownMenu>
-                        ) : null)}
+                                    <Avatar className="h-10 w-10 border border-white/30">
+                                        <AvatarImage
+                                            src={user.user_metadata.avatar_url}
+                                            alt={user.user_metadata.full_name}
+                                        />
+                                        <AvatarFallback className="bg-white/10 text-white">
+                                            {getInitials(
+                                                user.user_metadata.full_name
+                                            )}
+                                        </AvatarFallback>
+                                    </Avatar>
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent className="w-56" align="end">
+                                <DropdownMenuItem className="flex flex-col items-start gap-1">
+                                    <p className="font-medium text-[#03045E]">
+                                        {user.user_metadata.full_name}
+                                    </p>
+                                    <p className="text-xs text-[#737373]">
+                                        {user.email}
+                                    </p>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                    onClick={() => signOut()}
+                                    className="text-[#C0091E] focus:text-[#C0091E] focus:bg-[#C0091E]/10"
+                                >
+                                    <LogOut className="mr-2 h-4 w-4" />
+                                    <span>Log out</span>
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    )}
                 </div>
             </div>
         </header>
