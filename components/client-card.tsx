@@ -36,10 +36,15 @@ export default function ClientCard({ client, onDelete }: ClientCardProps) {
     const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
     const copyToClipboard = () => {
+        const [firstName, ...lastNameParts] = client.owner_name
+            .trim()
+            .split(/\s+/);
+        const lastName = lastNameParts.join(' ');
+
         const clientInfo = `
 Client Information:
-First Name: ${client.owner_name.split(' ')[0]}
-Last Name: ${client.owner_name.split(' ')[1]}
+First Name: ${firstName}
+Last Name: ${lastName}
 Address: ${client.street}
 City: ${client.city}
 State: ${client.state}
