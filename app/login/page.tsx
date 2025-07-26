@@ -36,7 +36,7 @@ export default function LoginPage() {
                     </CardDescription>
                 </CardHeader>
                 <CardContent className="flex flex-col gap-4">
-                    <div className="text-center text-sm text-muted-foreground">
+                    <div className="text-center text-sm text-muted- foreground">
                         <p>Only authorized users can access this dashboard</p>
                     </div>
                     <Button
