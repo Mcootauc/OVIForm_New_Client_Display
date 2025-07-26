@@ -36,9 +36,6 @@ export default function Home() {
                                 </TabsList>
 
                                 <TabsContent value="clients">
-                                    <h2 className="text-2xl font-semibold text-[#03045E] mb-8">
-                                        Client Information Dashboard
-                                    </h2>
                                     <ClientGrid />
                                 </TabsContent>
 

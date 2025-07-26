@@ -55,13 +55,7 @@ Age: ${getAge(client.birth_date)}
 Sex: ${client.sex}
 Spayed Neutered: ${client.spayed_or_neutered}
 Color: ${client.color}
-Microchip: ${
-            client.microchip &&
-            client.microchip !== 'No' &&
-            client.microchip !== 'Unknown'
-                ? client.microchip
-                : ''
-        }
+Microchip: ${''}
     `.trim();
 
         navigator.clipboard.writeText(clientInfo);
@@ -207,9 +201,7 @@ Microchip: ${
                                     <span className="text-muted-foreground">
                                         Microchip:
                                     </span>{' '}
-                                    {client.microchip
-                                        ? client.microchip
-                                        : 'None'}
+                                    {client.microchip}
                                 </div>
                             </div>
                         </div>
