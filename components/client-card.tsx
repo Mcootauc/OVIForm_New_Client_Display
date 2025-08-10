@@ -146,7 +146,7 @@ Microchip: ${''}
                                     <span className="text-muted-foreground">
                                         Email:
                                     </span>{' '}
-                                    <span className="text-blue-300 underline">
+                                    <span className="text-[#56A0AE] underline">
                                         {client.email}
                                     </span>
                                 </div>
