@@ -9,10 +9,10 @@ import { Button } from '@/components/ui/button';
 
 export default function ClientGrid() {
     const [clients, setClients] = useState<Client[]>([]);
+
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
     const [error, setError] = useState<string | null>(null);
-
     useEffect(() => {
         fetchClients();
     }, []);
@@ -25,6 +25,7 @@ export default function ClientGrid() {
             const { data, error } = await supabase
                 .from('clients')
                 .select('*')
+                .eq('hospital_id', 1)
                 .order('created_at', { ascending: false });
 
             if (error) {
@@ -47,6 +48,7 @@ export default function ClientGrid() {
             const { data, error } = await supabase
                 .from('clients')
                 .select('*')
+                .eq('hospital_id', 1)
                 .order('created_at', { ascending: false });
 
             if (error) {

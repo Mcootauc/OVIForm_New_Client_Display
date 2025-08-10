@@ -35,6 +35,21 @@ export default function ClientCard({ client, onDelete }: ClientCardProps) {
     const [isDeleting, setIsDeleting] = useState(false);
     const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
+    const isUnknown = (value: unknown) => {
+        const normalized = String(value ?? '')
+            .trim()
+            .toLowerCase();
+        return normalized === 'unknown';
+    };
+
+    const isOtherSpecies = (value: unknown) => {
+        return (
+            String(value ?? '')
+                .trim()
+                .toLowerCase() === 'other'
+        );
+    };
+
     const copyToClipboard = () => {
         const [firstName, ...lastNameParts] = client.owner_name
             .trim()
@@ -129,14 +144,11 @@ Microchip: ${''}
                                 </div>
                                 <div>
                                     <span className="text-muted-foreground">
-                                        Address:
+                                        Email:
                                     </span>{' '}
-                                    {client.street}
-                                </div>
-                                <div>
-                                    <span className="text-muted-foreground"></span>{' '}
-                                    {client.city}, {client.state}{' '}
-                                    {client.zip_code}
+                                    <span className="text-blue-300 underline">
+                                        {client.email}
+                                    </span>
                                 </div>
                                 <div>
                                     <span className="text-muted-foreground">
@@ -146,11 +158,10 @@ Microchip: ${''}
                                 </div>
                                 <div>
                                     <span className="text-muted-foreground">
-                                        Email:
+                                        Address:
                                     </span>{' '}
-                                    <span className="text-blue-300">
-                                        {client.email}
-                                    </span>
+                                    {client.street}, {client.city},{' '}
+                                    {client.state} {client.zip_code}
                                 </div>
                             </div>
                         </div>
@@ -168,15 +179,45 @@ Microchip: ${''}
                                 </div>
                                 <div>
                                     <span className="text-muted-foreground">
+                                        Color:
+                                    </span>{' '}
+                                    <span
+                                        className={
+                                            isUnknown(client.color)
+                                                ? 'text-[#C0091E]'
+                                                : undefined
+                                        }
+                                    >
+                                        {client.color}
+                                    </span>
+                                </div>
+                                <div>
+                                    <span className="text-muted-foreground">
                                         Species:
                                     </span>{' '}
-                                    {client.species}
+                                    <span
+                                        className={
+                                            isOtherSpecies(client.species)
+                                                ? 'text-[#C0091E]'
+                                                : undefined
+                                        }
+                                    >
+                                        {client.species}
+                                    </span>
                                 </div>
                                 <div>
                                     <span className="text-muted-foreground">
                                         Breed:
                                     </span>{' '}
-                                    {client.breed}
+                                    <span
+                                        className={
+                                            isUnknown(client.breed)
+                                                ? 'text-[#C0091E]'
+                                                : undefined
+                                        }
+                                    >
+                                        {client.breed}
+                                    </span>
                                 </div>
                                 <div>
                                     <span className="text-muted-foreground">
@@ -188,25 +229,52 @@ Microchip: ${''}
                                     <span className="text-muted-foreground">
                                         Sex:
                                     </span>{' '}
-                                    {client.sex}
+                                    <span
+                                        className={
+                                            isUnknown(client.sex)
+                                                ? 'text-[#C0091E]'
+                                                : undefined
+                                        }
+                                    >
+                                        {client.sex}
+                                    </span>
                                 </div>
-                                <div>
-                                    <span className="text-muted-foreground">
-                                        Color:
-                                    </span>{' '}
-                                    {client.color}
-                                </div>
+
                                 <div className="col-span-2">
                                     <span className="text-muted-foreground">
                                         Spayed/Neutered:
                                     </span>{' '}
-                                    {client.spayed_or_neutered}
+                                    <span
+                                        className={
+                                            isUnknown(
+                                                // handle boolean or string
+                                                typeof client.spayed_or_neutered ===
+                                                    'boolean'
+                                                    ? client.spayed_or_neutered
+                                                        ? 'yes'
+                                                        : 'no'
+                                                    : client.spayed_or_neutered
+                                            )
+                                                ? 'text-[#C0091E]'
+                                                : undefined
+                                        }
+                                    >
+                                        {client.spayed_or_neutered}
+                                    </span>
                                 </div>
                                 <div className="col-span-2">
                                     <span className="text-muted-foreground">
                                         Microchip:
                                     </span>{' '}
-                                    {client.microchip}
+                                    <span
+                                        className={
+                                            isUnknown(client.microchip)
+                                                ? 'text-[#C0091E]'
+                                                : undefined
+                                        }
+                                    >
+                                        {client.microchip}
+                                    </span>
                                 </div>
                             </div>
                         </div>
@@ -232,7 +300,7 @@ Microchip: ${''}
                     <Button
                         variant="destructive"
                         size="sm"
-                        className="bg-[#C0091E] hover:bg-[#C0091E]/90 text-white"
+                        className="bg-[#C0091E] hover:bg-[#C0091E]/70 text-white"
                         onClick={() => setShowDeleteDialog(true)}
                         disabled={isDeleting}
                     >
