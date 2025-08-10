@@ -11,7 +11,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Clipboard, Check, Dog, Cat, AlertCircle, Trash2 } from 'lucide-react';
-import type { VVH_Client } from '@/utils/supabase';
+import type { clientType } from '@/utils/supabase';
 import { formatDate } from '@/utils/format-date';
 import {
     AlertDialog,
@@ -26,7 +26,7 @@ import {
 import { getAge, getAgeStringFromDate } from '@/utils/get-age';
 
 interface ClientCardProps {
-    client: VVH_Client;
+    client: clientType;
     onDelete: (id: number) => Promise<void>;
 }
 
