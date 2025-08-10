@@ -1,14 +1,14 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { supabase, type VVH_Client } from '@/utils/supabase';
+import { supabase, type Client } from '@/utils/supabase';
 import ClientCard from './client-card';
 import { Loader2, RefreshCw } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
 import { Button } from '@/components/ui/button';
 
 export default function ClientGrid() {
-    const [clients, setClients] = useState<VVH_Client[]>([]);
+    const [clients, setClients] = useState<Client[]>([]);
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -23,7 +23,7 @@ export default function ClientGrid() {
             setError(null);
 
             const { data, error } = await supabase
-                .from('VVH_Clients')
+                .from('clients')
                 .select('*')
                 .order('created_at', { ascending: false });
 
@@ -45,7 +45,7 @@ export default function ClientGrid() {
             setRefreshing(true);
 
             const { data, error } = await supabase
-                .from('VVH_Clients')
+                .from('clients')
                 .select('*')
                 .order('created_at', { ascending: false });
 
@@ -87,7 +87,7 @@ export default function ClientGrid() {
     async function deleteClient(id: number) {
         try {
             const { error } = await supabase
-                .from('VVH_Clients')
+                .from('clients')
                 .delete()
                 .eq('id', id);
 
