@@ -6,10 +6,11 @@ import PetCard from '@/components/pet-card';
 import { Loader2, RefreshCw } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
 import { Button } from '@/components/ui/button';
+import { useAuth } from '@/context/auth-context';
 
 export default function PetGrid() {
+    const { user } = useAuth();
     const [pets, setPets] = useState<Pet[]>([]);
-
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -17,15 +18,29 @@ export default function PetGrid() {
         fetchPets();
     }, []);
 
+    async function fetchHospitalIdfromUser() {
+        const { data, error } = await supabase
+            .from('user_hospitals')
+            .select('hospital_id')
+            .eq('email', user?.email) // or .eq('user_id', user?.id) if you store auth.uid() there
+            .eq('is_active', true)
+            .maybeSingle(); // returns 0|1 row, error if >1
+
+        if (error) throw error;
+
+        return data?.hospital_id;
+    }
+
     async function fetchPets() {
         try {
             setLoading(true);
             setError(null);
 
+            const hospitalId = await fetchHospitalIdfromUser();
             const { data, error } = await supabase
                 .from('pets')
                 .select('*')
-                .eq('hospital_id', 1)
+                .eq('hospital_id', hospitalId)
                 .order('created_at', { ascending: false });
 
             if (error) {
@@ -45,10 +60,11 @@ export default function PetGrid() {
         try {
             setRefreshing(true);
 
+            const hospitalId = await fetchHospitalIdfromUser();
             const { data, error } = await supabase
                 .from('pets')
                 .select('*')
-                .eq('hospital_id', 1)
+                .eq('hospital_id', hospitalId)
                 .order('created_at', { ascending: false });
 
             if (error) {

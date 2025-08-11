@@ -6,10 +6,11 @@ import ClientCard from './client-card';
 import { Loader2, RefreshCw } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
 import { Button } from '@/components/ui/button';
+import { useAuth } from '@/context/auth-context';
 
 export default function ClientGrid() {
+    const { user } = useAuth();
     const [clients, setClients] = useState<Client[]>([]);
-
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -17,15 +18,30 @@ export default function ClientGrid() {
         fetchClients();
     }, []);
 
+    async function fetchHospitalIdfromUser() {
+        const { data, error } = await supabase
+            .from('user_hospitals')
+            .select('hospital_id')
+            .eq('email', user?.email)
+            .eq('is_active', true)
+            .maybeSingle();
+
+        if (error) throw error;
+
+        return data?.hospital_id;
+    }
+
     async function fetchClients() {
         try {
             setLoading(true);
             setError(null);
 
+            const hospitalId = await fetchHospitalIdfromUser();
+
             const { data, error } = await supabase
                 .from('clients')
                 .select('*')
-                .eq('hospital_id', 1)
+                .eq('hospital_id', hospitalId)
                 .order('created_at', { ascending: false });
 
             if (error) {
@@ -45,10 +61,12 @@ export default function ClientGrid() {
         try {
             setRefreshing(true);
 
+            const hospitalId = await fetchHospitalIdfromUser();
+
             const { data, error } = await supabase
                 .from('clients')
                 .select('*')
-                .eq('hospital_id', 1)
+                .eq('hospital_id', hospitalId)
                 .order('created_at', { ascending: false });
 
             if (error) {
