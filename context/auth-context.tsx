@@ -29,7 +29,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         user?.email === 'mcootauc@gmail.com' ||
         user?.email === 'mccdvm1@gmail.com' ||
         user?.email === 'valleyvet1007@gmail.com' ||
-        user?.email === 'mccdvm1007@gmail.com';
+        user?.email === 'mccdvm1007@gmail.com' ||
+        user?.email === 'tcootauco@gmail.com';
 
     useEffect(() => {
         const setData = async () => {
