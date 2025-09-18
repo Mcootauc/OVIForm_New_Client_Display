@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { LogOut } from 'lucide-react';
 
-export default function Header() {
+export default function Header({ title }: Readonly<{ title: string }>) {
     const { user, signOut } = useAuth();
 
     const getInitials = (name?: string) => {
@@ -27,7 +27,7 @@ export default function Header() {
             <div className="container mx-auto px-4 py-6">
                 <div className="flex items-center justify-between">
                     <h1 className="text-3xl font-bold text-[#FEFEFE]">
-                        Pet Client Manager
+                        {title}
                     </h1>
                     {user && (
                         <DropdownMenu>
