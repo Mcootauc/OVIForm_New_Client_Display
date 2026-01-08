@@ -20,6 +20,8 @@ export type clientType = {
     breed: string;
     birth_date: string;
     sex: string;
+    secondary_contact_name: string;
+    secondary_contact_cell_phone: string;
     spayed_or_neutered: boolean;
     color: string;
     microchip: string;

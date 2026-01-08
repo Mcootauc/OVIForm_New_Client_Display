@@ -47,7 +47,7 @@ export default function ClientGrid() {
             if (error) {
                 throw error;
             }
-
+            console.log(data);
             setClients(data || []);
         } catch (error) {
             console.error('Error fetching clients:', error);
