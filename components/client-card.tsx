@@ -130,8 +130,15 @@ Secondary Phone: ${secondaryContactPhone}
     };
 
     const phoneFormat = (phone: string) => {
-        return phone.replace(/(\d{3})(\d{3})(\d{4})/, '($1) $2-$3');
+        if (phone) {
+            return phone.replace(/(\d{3})(\d{3})(\d{4})/, '($1) $2-$3');
+        }
+        return '';
     };
+
+    const hasSecondaryContact =
+        String(client.secondary_contact_name ?? '').trim().length > 0 ||
+        String(client.secondary_contact_cell_phone ?? '').trim().length > 0;
 
     return (
         <>
@@ -305,8 +312,7 @@ Secondary Phone: ${secondaryContactPhone}
                         </div>
 
                         {/* Secondary Contact Information */}
-                        {(client.secondary_contact_name ||
-                            client.secondary_contact_cell_phone) && (
+                        {hasSecondaryContact && (
                             <div>
                                 <h3 className="text-md font-medium text-[#03045E] mb-1">
                                     Secondary Contact Information
@@ -322,7 +328,9 @@ Secondary Phone: ${secondaryContactPhone}
                                         <span className="text-muted-foreground">
                                             Phone:
                                         </span>{' '}
-                                        {phoneFormat(client.cell_phone)}
+                                        {phoneFormat(
+                                            client.secondary_contact_cell_phone
+                                        )}
                                     </div>
                                 </div>
                             </div>
