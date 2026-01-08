@@ -136,6 +136,10 @@ Secondary Phone: ${secondaryContactPhone}
         return '';
     };
 
+    const hasSecondaryContact =
+        String(client.secondary_contact_name ?? '').trim().length > 0 ||
+        String(client.secondary_contact_cell_phone ?? '').trim().length > 0;
+
     return (
         <>
             <Card className="overflow-hidden border-[#737373]/20 bg-white hover:bg-white/95 transition-colors">
@@ -308,8 +312,7 @@ Secondary Phone: ${secondaryContactPhone}
                         </div>
 
                         {/* Secondary Contact Information */}
-                        {(client.secondary_contact_name ||
-                            client.secondary_contact_cell_phone) && (
+                        {hasSecondaryContact && (
                             <div>
                                 <h3 className="text-md font-medium text-[#03045E] mb-1">
                                     Secondary Contact Information
