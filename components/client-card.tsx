@@ -51,10 +51,28 @@ export default function ClientCard({ client, onDelete }: ClientCardProps) {
     };
 
     const copyToClipboard = () => {
-        const [firstName, ...lastNameParts] = client.owner_name
+        // Split owner name into first name and last name
+        const [firstName, ...lastNameParts] = client.owner_name // last name parts include middle name (e.g. First name: Brendan, Last name: Michael Tan)
             .trim()
             .split(/\s+/);
-        const lastName = lastNameParts.join(' ');
+        const lastName = lastNameParts.join(' '); // join the last name parts back together (e.g. Brendan Michael Tan => Michael Tan)
+
+        // Secondary Contact Information
+        let secondaryContactName = '';
+        let secondaryContactPhone = '';
+
+        // checks if secondary contact name and phone are not null
+        if (client.secondary_contact_name) {
+            secondaryContactName = client.secondary_contact_name;
+        }
+        if (client.secondary_contact_cell_phone) {
+            secondaryContactPhone = client.secondary_contact_cell_phone;
+        }
+
+        // Split secondary contact name into first name and last name
+        const [secondaryFirstName, ...secondaryLastNameParts] =
+            secondaryContactName.trim().split(/\s+/); // last name parts include middle name (e.g. First name: Brendan, Last name: Michael Tan)
+        const secondaryLastName = secondaryLastNameParts.join(' '); // join the last name parts back together (e.g. Brendan Michael Tan => Michael Tan)
 
         const clientInfo = `
 Client Information:
@@ -76,6 +94,11 @@ Sex: ${client.sex}
 Spayed Neutered: ${client.spayed_or_neutered}
 Color: ${client.color}
 Microchip: ${''}
+
+Secondary Contact Information:
+First Name: ${secondaryFirstName}
+Last Name: ${secondaryLastName}
+Phone: ${secondaryContactPhone}
     `.trim();
 
         navigator.clipboard.writeText(clientInfo);
@@ -131,8 +154,9 @@ Microchip: ${''}
                 </CardHeader>
                 <CardContent className="pt-4 pb-2">
                     <div className="space-y-4">
+                        {/* Owner Information */}
                         <div>
-                            <h3 className="text-sm font-medium text-[#03045E] mb-1">
+                            <h3 className="text-md font-medium text-[#03045E] mb-1">
                                 Owner Information
                             </h3>
                             <div className="space-y-1 text-sm">
@@ -166,8 +190,9 @@ Microchip: ${''}
                             </div>
                         </div>
 
+                        {/* Pet Information */}
                         <div>
-                            <h3 className="text-sm font-medium text-[#03045E] mb-1 flex items-center gap-1">
+                            <h3 className="text-md font-medium text-[#03045E] mb-1 flex items-center gap-1">
                                 {getPetIcon()} Pet Information
                             </h3>
                             <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
@@ -278,6 +303,30 @@ Microchip: ${''}
                                 </div>
                             </div>
                         </div>
+
+                        {/* Secondary Contact Information */}
+                        {(client.secondary_contact_name ||
+                            client.secondary_contact_cell_phone) && (
+                            <div>
+                                <h3 className="text-md font-medium text-[#03045E] mb-1">
+                                    Secondary Contact Information
+                                </h3>
+                                <div className="space-y-1 text-sm">
+                                    <div>
+                                        <span className="text-muted-foreground">
+                                            Name:
+                                        </span>{' '}
+                                        {client.secondary_contact_name}
+                                    </div>
+                                    <div>
+                                        <span className="text-muted-foreground">
+                                            Phone:
+                                        </span>{' '}
+                                        {phoneFormat(client.cell_phone)}
+                                    </div>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </CardContent>
                 <CardFooter className="pt-2 flex gap-2">
