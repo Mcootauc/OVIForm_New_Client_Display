@@ -130,7 +130,10 @@ Secondary Phone: ${secondaryContactPhone}
     };
 
     const phoneFormat = (phone: string) => {
-        return phone.replace(/(\d{3})(\d{3})(\d{4})/, '($1) $2-$3');
+        if (phone) {
+            return phone.replace(/(\d{3})(\d{3})(\d{4})/, '($1) $2-$3');
+        }
+        return '';
     };
 
     return (
@@ -322,7 +325,9 @@ Secondary Phone: ${secondaryContactPhone}
                                         <span className="text-muted-foreground">
                                             Phone:
                                         </span>{' '}
-                                        {phoneFormat(client.cell_phone)}
+                                        {phoneFormat(
+                                            client.secondary_contact_cell_phone
+                                        )}
                                     </div>
                                 </div>
                             </div>
