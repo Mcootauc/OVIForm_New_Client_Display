@@ -96,9 +96,9 @@ Color: ${client.color}
 Microchip: ${''}
 
 Secondary Contact Information:
-First Name: ${secondaryFirstName}
-Last Name: ${secondaryLastName}
-Phone: ${secondaryContactPhone}
+Secondary First Name: ${secondaryFirstName}
+Secondary Last Name: ${secondaryLastName}
+Secondary Phone: ${secondaryContactPhone}
     `.trim();
 
         navigator.clipboard.writeText(clientInfo);
