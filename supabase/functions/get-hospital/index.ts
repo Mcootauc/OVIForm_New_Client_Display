@@ -58,13 +58,13 @@ Deno.serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
     )
 
-    // 1) Try by user_id
+    // 1) Try by auth.users id, which is stored in profiles.id
     let selectedLink: { hospital_id: number } | null = null
 
     const { data: linkById, error: linkByIdError } = await supabaseAdmin
-      .from('user_hospitals')
+      .from('profiles')
       .select('hospital_id, is_active, created_at')
-      .eq('user_id', userId)
+      .eq('id', userId)
       .eq('is_active', true)
       .order('created_at', { ascending: false })
       .limit(1)
@@ -77,7 +77,7 @@ Deno.serve(async (req) => {
     // 2) If not found by user_id, try by email
     if (!selectedLink) {
       const { data: linkByEmail, error: linkByEmailError } = await supabaseAdmin
-        .from('user_hospitals')
+        .from('profiles')
         .select('hospital_id, is_active, created_at')
         .eq('email', userEmail)
         .eq('is_active', true)
