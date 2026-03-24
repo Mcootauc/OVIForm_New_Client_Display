@@ -6,10 +6,9 @@ import PetCard from '@/components/pet-card';
 import { Loader2, RefreshCw } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
 import { Button } from '@/components/ui/button';
-import { useAuth } from '@/context/auth-context';
+import { getHospital } from '@/lib/edgeFunctions';
 
 export default function PetGrid() {
-    const { user } = useAuth();
     const [pets, setPets] = useState<Pet[]>([]);
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
@@ -19,16 +18,8 @@ export default function PetGrid() {
     }, []);
 
     async function fetchHospitalIdfromUser() {
-        const { data, error } = await supabase
-            .from('user_hospitals')
-            .select('hospital_id')
-            .eq('email', user?.email) // or .eq('user_id', user?.id) if you store auth.uid() there
-            .eq('is_active', true)
-            .maybeSingle(); // returns 0|1 row, error if >1
-
-        if (error) throw error;
-
-        return data?.hospital_id;
+        const hospital = await getHospital();
+        return hospital?.id;
     }
 
     async function fetchPets() {

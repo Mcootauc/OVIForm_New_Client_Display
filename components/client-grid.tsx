@@ -6,10 +6,9 @@ import ClientCard from './client-card';
 import { Loader2, RefreshCw } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
 import { Button } from '@/components/ui/button';
-import { useAuth } from '@/context/auth-context';
+import { getHospital } from '@/lib/edgeFunctions';
 
 export default function ClientGrid() {
-    const { user } = useAuth();
     const [clients, setClients] = useState<Client[]>([]);
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
@@ -19,16 +18,8 @@ export default function ClientGrid() {
     }, []);
 
     async function fetchHospitalIdfromUser() {
-        const { data, error } = await supabase
-            .from('user_hospitals')
-            .select('hospital_id')
-            .eq('email', user?.email)
-            .eq('is_active', true)
-            .maybeSingle();
-
-        if (error) throw error;
-
-        return data?.hospital_id;
+        const hospital = await getHospital();
+        return hospital?.id;
     }
 
     async function fetchClients() {
