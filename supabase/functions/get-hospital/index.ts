@@ -74,7 +74,7 @@ Deno.serve(async (req) => {
       selectedLink = { hospital_id: linkById.hospital_id }
     }
 
-    // 2) If not found by user_id, try user email
+    // 2) If not found by user_id, try by email
     if (!selectedLink) {
       const { data: linkByEmail, error: linkByEmailError } = await supabaseAdmin
         .from('profiles')
