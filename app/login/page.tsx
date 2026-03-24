@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import Link from 'next/link';
 import { useAuth } from '@/context/auth-context';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -73,9 +74,23 @@ export default function LoginPage() {
                 </Card>
             </main>
             <footer className="py-6">
-                <p className="text-center text-sm text-[#737373]">
-                    &copy; OVIForm. All rights reserved.
-                </p>
+                <div className="flex flex-col items-center gap-2 text-sm text-[#737373]">
+                    <p>&copy; OVIForm. All rights reserved.</p>
+                    <div className="flex items-center gap-4">
+                        <Link
+                            href="/privacy-policy"
+                            className="text-[#56A0AE] underline underline-offset-4"
+                        >
+                            Privacy Policy
+                        </Link>
+                        <Link
+                            href="/terms"
+                            className="text-[#56A0AE] underline underline-offset-4"
+                        >
+                            Terms of Service
+                        </Link>
+                    </div>
+                </div>
             </footer>
         </div>
     );
