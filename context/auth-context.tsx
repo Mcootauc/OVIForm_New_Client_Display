@@ -2,14 +2,21 @@
 
 import type React from 'react';
 
-import { createContext, useContext, useEffect, useState } from 'react';
-import { supabase } from '@/utils/supabase';
+import {
+    createContext,
+    useCallback,
+    useContext,
+    useEffect,
+    useState,
+} from 'react';
+import { supabase, type Profile } from '@/utils/supabase/client';
 import type { Session, User } from '@supabase/supabase-js';
 import { useRouter } from 'next/navigation';
 
 type AuthContextType = {
     user: User | null;
     session: Session | null;
+    profile: Profile | null;
     isLoading: boolean;
     signInWithGoogle: () => Promise<void>;
     signOut: () => Promise<void>;
@@ -21,16 +28,50 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [user, setUser] = useState<User | null>(null);
     const [session, setSession] = useState<Session | null>(null);
+    const [profile, setProfile] = useState<Profile | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const router = useRouter();
 
-    // Only allow mcootauc@gmail.com to access the dashboard
-    const isAuthorized =
-        user?.email === 'mcootauc@gmail.com' ||
-        user?.email === 'mccdvm1@gmail.com' ||
-        user?.email === 'valleyvet1007@gmail.com' ||
-        user?.email === 'mccdvm1007@gmail.com' ||
-        user?.email === 'tcootauco@gmail.com';
+    // Authorization is driven by the profiles table.
+    // If a signed-in user has an active profile row, they can use the app.
+    const isAuthorized = profile !== null;
+
+    const loadProfile = useCallback(async (nextSession: Session | null) => {
+        const email = nextSession?.user.email;
+
+        if (!email) {
+            setProfile(null);
+            return;
+        }
+
+        // The profiles table is the source of truth for app access.
+        // A missing or inactive row means the user can sign in but should not
+        // be allowed into the dashboard.
+        const { data, error } = await supabase
+            .from('profiles')
+            .select('id, hospital_id, email, role, is_active, created_at')
+            .eq('email', email)
+            .eq('is_active', true)
+            .maybeSingle();
+
+        if (error) {
+            console.error('Error loading profile:', error);
+            setProfile(null);
+            return;
+        }
+
+        setProfile(data);
+    }, []);
+
+    const syncAuthState = useCallback(
+        async (nextSession: Session | null) => {
+            setSession(nextSession);
+            setUser(nextSession?.user ?? null);
+            await loadProfile(nextSession);
+            setIsLoading(false);
+        },
+        [loadProfile]
+    );
 
     useEffect(() => {
         const setData = async () => {
@@ -40,28 +81,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             } = await supabase.auth.getSession();
             if (error) {
                 console.error(error);
+                setProfile(null);
                 setIsLoading(false);
                 return;
             }
 
-            setSession(session);
-            setUser(session?.user ?? null);
-            setIsLoading(false);
+            await syncAuthState(session);
         };
 
         const {
             data: { subscription },
-        } = supabase.auth.onAuthStateChange((_event, session) => {
-            setSession(session);
-            setUser(session?.user ?? null);
+        } = supabase.auth.onAuthStateChange((_event, nextSession) => {
+            void syncAuthState(nextSession);
         });
 
-        setData();
+        void setData();
 
         return () => {
             subscription.unsubscribe();
         };
-    }, []);
+    }, [syncAuthState]);
 
     const signInWithGoogle = async () => {
         try {
@@ -95,6 +134,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const value = {
         user,
         session,
+        profile,
         isLoading,
         signInWithGoogle,
         signOut,
