@@ -1,42 +1,47 @@
-# Supabase Authentication Setup
+# Supabase Authentication & Environment Setup
 
-To fix the Google authentication redirects, make sure to update the following settings in your Supabase project:
+OVIForm uses two Supabase projects to isolate production data from staging/preview testing.
 
-## URL Configuration
+- **Production:** `uqdolredkukdkoolnubw`
+- **Staging:** `acmgofotwucibmtwaeob`
 
-1. Go to your [Supabase Dashboard](https://app.supabase.com)
-2. Navigate to your project
-3. Go to Authentication → URL Configuration
-4. Update the Site URL to match your production URL:
-    ```
-    https://v0-next-js-client-ki7i6w8lc-mcootauc-gmailcoms-projects.vercel.app
-    ```
-5. Add the following Redirect URLs:
-    ```
-    https://v0-next-js-client-ki7i6w8lc-mcootauc-gmailcoms-projects.vercel.app/auth/callback
-    https://v0-next-js-client-ki7i6w8lc-mcootauc-gmailcoms-projects.vercel.app
-    http://localhost:3000/auth/callback
-    http://localhost:3000
-    ```
+## Local Development
 
-## Google OAuth Provider
+For local development, we point the app to the **Staging** project to avoid accidentally mutating production data.
 
-1. In the Supabase Dashboard, go to Authentication → Providers
-2. Make sure Google is enabled
-3. Check that your Google OAuth client ID and client secret are correctly configured
-4. In your Google Cloud Console, make sure the authorized redirect URIs include:
-    ```
-    https://uqdolredkukdkoolnubw.supabase.co/auth/v1/callback
-    ```
+Your local `.env` file should contain:
+
+```text
+NEXT_PUBLIC_SUPABASE_URL=https://acmgofotwucibmtwaeob.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=<staging anon key>
+```
+
+*(Note: `NEXT_PUBLIC_SITE_URL` is no longer required. The app infers the callback URL from the runtime origin.)*
 
 ## Vercel Environment Variables
 
-Make sure your Vercel project has the following environment variables set:
+In the Vercel Dashboard → Settings → Environment Variables, variables must be scoped correctly:
 
-```
-NEXT_PUBLIC_SUPABASE_URL=https://uqdolredkukdkoolnubw.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVxZG9scmVka3VrZGtvb2xudWJ3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDE4MDc5NjEsImV4cCI6MjA1NzM4Mzk2MX0.IExrd80O0Tx6OrIS6XVaQHw8XQlpLNjEtdoGWsi7-Yg
-NEXT_PUBLIC_SITE_URL=https://v0-next-js-client-ki7i6w8lc-mcootauc-gmailcoms-projects.vercel.app
-```
+1. **Production scope:**
+   - `NEXT_PUBLIC_SUPABASE_URL` = `https://uqdolredkukdkoolnubw.supabase.co`
+   - `NEXT_PUBLIC_SUPABASE_ANON_KEY` = `<prod anon key>`
 
-After making these changes, redeploy your application to Vercel.
+2. **Preview scope:**
+   - `NEXT_PUBLIC_SUPABASE_URL` = `https://acmgofotwucibmtwaeob.supabase.co`
+   - `NEXT_PUBLIC_SUPABASE_ANON_KEY` = `<staging anon key>`
+
+Ensure there are **no** "All Environments" entries for these variables, as they can override the specific environment scopes.
+
+## Google OAuth Configuration
+
+Both production and staging must be registered in Google Cloud Console.
+
+Authorized redirect URIs in Google Cloud Console:
+- Prod: `https://uqdolredkukdkoolnubw.supabase.co/auth/v1/callback`
+- Staging: `https://acmgofotwucibmtwaeob.supabase.co/auth/v1/callback`
+
+## Edge Functions
+
+Edge Functions (like `get-hospital`) must be deployed to both projects. They automatically read their environment's `SUPABASE_URL` and `SUPABASE_ANON_KEY` from `Deno.env`, so the same code works in both places.
+
+CORS origins are allowed dynamically based on regexes matching Vercel preview domains. If a new custom domain is added, update `ALLOWED_ORIGIN_REGEXES` in the Edge Function, or set the `ALLOWED_ORIGINS` secret in the Supabase dashboard for that project.
