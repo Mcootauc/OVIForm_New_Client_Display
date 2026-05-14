@@ -36,6 +36,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // If a signed-in user has an active profile row, they can use the app.
     const isAuthorized = profile !== null;
 
+    /**
+     * loadProfile fetches the user's role and authorization status from the database.
+     * While 'Session' tells us IF the user is logged in via Google, 'Profile' tells us 
+     * WHAT they are allowed to do in our specific application.
+     */
     const loadProfile = useCallback(async (nextSession: Session | null) => {
         const email = nextSession?.user.email;
 
@@ -63,6 +68,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setProfile(data);
     }, []);
 
+    /**
+     * syncAuthState acts as the central coordinator for updating the React state.
+     * It ensures that whenever the Supabase session changes, we immediately:
+     * 1. Update the local session/user state.
+     * 2. Re-fetch the profile to ensure their authorization matches their new session.
+     * 3. Turn off the loading spinner once everything is ready.
+     */
     const syncAuthState = useCallback(
         async (nextSession: Session | null) => {
             setSession(nextSession);
@@ -73,7 +85,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         [loadProfile]
     );
 
+    /**
+     * useEffect is the initialization engine. It runs exactly once when the 
+     * app first loads in the user's browser.
+     */
     useEffect(() => {
+        // 1. Initial Load: Check if the user already has an active session
+        // stored in their browser from a previous visit.
         const setData = async () => {
             const {
                 data: { session },
@@ -89,6 +107,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             await syncAuthState(session);
         };
 
+        // 2. Real-time Listener: Subscribe to any future changes in auth state.
+        // For example, if the user opens a second tab and logs out there, 
+        // this listener catches that event and updates this tab too.
         const {
             data: { subscription },
         } = supabase.auth.onAuthStateChange((_event, nextSession) => {
@@ -97,6 +118,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         void setData();
 
+        // 3. Cleanup: When this component is destroyed, cancel the real-time 
+        // listener to prevent memory leaks.
         return () => {
             subscription.unsubscribe();
         };

@@ -23,7 +23,7 @@ export default function ProtectedRoute({
         }
     }, [isLoading, user, isAuthorized, router]);
 
-    // Middleware blocks signed-out users on the server.
+    // Proxy blocks signed-out users on the server.
     // This client guard handles the final redirect after profile-based
     // authorization finishes loading in the browser.
     if (isLoading) {
