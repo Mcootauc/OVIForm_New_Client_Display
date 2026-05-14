@@ -11,7 +11,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Clipboard, Check, Dog, Cat, AlertCircle, Trash2 } from 'lucide-react';
-import type { clientType } from '@/utils/supabase';
+import type { PetRow, ClientRow } from '@/utils/supabase';
 import { formatDate } from '@/utils/format-date';
 import {
     AlertDialog,
@@ -26,11 +26,12 @@ import {
 import { getAge, getAgeStringFromDate } from '@/utils/get-age';
 
 interface ClientCardProps {
-    client: clientType;
-    onDelete: (id: number) => Promise<void>;
+    pet: PetRow;
+    client: ClientRow | null;
+    onDelete: (petId: string) => Promise<void>;
 }
 
-export default function ClientCard({ client, onDelete }: ClientCardProps) {
+export default function ClientCard({ pet, client, onDelete }: ClientCardProps) {
     const [copied, setCopied] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
     const [showDeleteDialog, setShowDeleteDialog] = useState(false);
@@ -51,8 +52,9 @@ export default function ClientCard({ client, onDelete }: ClientCardProps) {
     };
 
     const copyToClipboard = () => {
+        const ownerName = client?.owner_name ?? 'Unknown owner';
         // Split owner name into first name and last name
-        const [firstName, ...lastNameParts] = client.owner_name // last name parts include middle name (e.g. First name: Brendan, Last name: Michael Tan)
+        const [firstName, ...lastNameParts] = ownerName // last name parts include middle name (e.g. First name: Brendan, Last name: Michael Tan)
             .trim()
             .split(/\s+/);
         const lastName = lastNameParts.join(' '); // join the last name parts back together (e.g. Brendan Michael Tan => Michael Tan)
@@ -62,10 +64,10 @@ export default function ClientCard({ client, onDelete }: ClientCardProps) {
         let secondaryContactPhone = '';
 
         // checks if secondary contact name and phone are not null
-        if (client.secondary_contact_name) {
+        if (client?.secondary_contact_name) {
             secondaryContactName = client.secondary_contact_name;
         }
-        if (client.secondary_contact_cell_phone) {
+        if (client?.secondary_contact_cell_phone) {
             secondaryContactPhone = client.secondary_contact_cell_phone;
         }
 
@@ -78,22 +80,22 @@ export default function ClientCard({ client, onDelete }: ClientCardProps) {
 Client Information:
 First Name: ${firstName}
 Last Name: ${lastName}
-Address: ${client.street}
-City: ${client.city}
-State: ${client.state}
-Zip Code: ${client.zip_code}
-Phone: ${client.cell_phone}
-Email: ${client.email}
+Address: ${client?.street ?? ''}
+City: ${client?.city ?? ''}
+State: ${client?.state ?? ''}
+Zip Code: ${client?.zip_code ?? ''}
+Phone: ${client?.cell_phone ?? ''}
+Email: ${client?.email ?? ''}
 
 Pet Information:
-Name: ${client.pet_name}
+Name: ${pet.pet_name}
 Species: ${getScientificName()}
-Breed: ${client.breed}
-Age: ${getAge(client.birth_date)}
-Sex: ${client.sex}
-Spayed Neutered: ${client.spayed_or_neutered}
-Color: ${client.color}
-Microchip: ${''}
+Breed: ${pet.breed ?? ''}
+Age: ${getAge(pet.birth_date ?? '')}
+Sex: ${pet.sex ?? ''}
+Spayed Neutered: ${pet.spayed_or_neutered ?? ''}
+Color: ${pet.color ?? ''}
+Microchip: ${pet.microchip ?? ''}
 
 Secondary Contact Information:
 Secondary First Name: ${secondaryFirstName}
@@ -108,13 +110,13 @@ Secondary Phone: ${secondaryContactPhone}
 
     const handleDelete = async () => {
         setIsDeleting(true);
-        await onDelete(client.id);
+        await onDelete(pet.id);
         setIsDeleting(false);
         setShowDeleteDialog(false);
     };
 
     const getPetIcon = () => {
-        const species = client.species?.toLowerCase();
+        const species = pet.species?.toLowerCase();
         if (species === 'dog')
             return <Dog className="h-5 w-5 text-[#03045E]" />;
         if (species === 'cat')
@@ -123,13 +125,13 @@ Secondary Phone: ${secondaryContactPhone}
     };
 
     const getScientificName = () => {
-        const species = client.species?.toLowerCase();
+        const species = pet.species?.toLowerCase();
         if (species === 'dog') return 'Canine';
         if (species === 'cat') return 'Feline';
         return 'Unknown';
     };
 
-    const phoneFormat = (phone: string) => {
+    const phoneFormat = (phone: string | null | undefined) => {
         if (phone) {
             return phone.replace(/(\d{3})(\d{3})(\d{4})/, '($1) $2-$3');
         }
@@ -137,8 +139,8 @@ Secondary Phone: ${secondaryContactPhone}
     };
 
     const hasSecondaryContact =
-        String(client.secondary_contact_name ?? '').trim().length > 0 ||
-        String(client.secondary_contact_cell_phone ?? '').trim().length > 0;
+        String(client?.secondary_contact_name ?? '').trim().length > 0 ||
+        String(client?.secondary_contact_cell_phone ?? '').trim().length > 0;
 
     return (
         <>
@@ -146,17 +148,17 @@ Secondary Phone: ${secondaryContactPhone}
                 <CardHeader className="bg-[#737373]/5 pb-2">
                     <div className="flex justify-between items-start">
                         <CardTitle className="text-xl font-bold text-[#03045E]">
-                            {client.owner_name}
+                            {client?.owner_name ?? 'Unknown owner'}
                         </CardTitle>
                         <Badge
                             variant="outline"
                             className="bg-[#56A0AE]/10 text-[#56A0AE] border-[#56A0AE]/30"
                         >
-                            {client.initials}
+                            {pet.initials}
                         </Badge>
                     </div>
                     <div className="text-sm text-[#737373]">
-                        Added on {formatDate(client.created_at)}
+                        Added on {formatDate(pet.created_at)}
                     </div>
                 </CardHeader>
                 <CardContent className="pt-4 pb-2">
@@ -171,28 +173,28 @@ Secondary Phone: ${secondaryContactPhone}
                                     <span className="text-muted-foreground">
                                         Name:
                                     </span>{' '}
-                                    {client.owner_name}
+                                    {client?.owner_name ?? 'Unknown'}
                                 </div>
                                 <div>
                                     <span className="text-muted-foreground">
                                         Email:
                                     </span>{' '}
                                     <span className="text-[#56A0AE] underline">
-                                        {client.email}
+                                        {client?.email ?? 'Unknown'}
                                     </span>
                                 </div>
                                 <div>
                                     <span className="text-muted-foreground">
                                         Phone:
                                     </span>{' '}
-                                    {phoneFormat(client.cell_phone)}
+                                    {phoneFormat(client?.cell_phone) || 'Unknown'}
                                 </div>
                                 <div>
                                     <span className="text-muted-foreground">
                                         Address:
                                     </span>{' '}
-                                    {client.street}, {client.city},{' '}
-                                    {client.state} {client.zip_code}
+                                    {client?.street ?? 'Unknown'}, {client?.city ?? 'Unknown'},{' '}
+                                    {client?.state ?? 'Unknown'} {client?.zip_code ?? 'Unknown'}
                                 </div>
                             </div>
                         </div>
@@ -207,7 +209,7 @@ Secondary Phone: ${secondaryContactPhone}
                                     <span className="text-muted-foreground">
                                         Name:
                                     </span>{' '}
-                                    {client.pet_name}
+                                    {pet.pet_name}
                                 </div>
                                 <div>
                                     <span className="text-muted-foreground">
@@ -215,12 +217,12 @@ Secondary Phone: ${secondaryContactPhone}
                                     </span>{' '}
                                     <span
                                         className={
-                                            isUnknown(client.color)
+                                            isUnknown(pet.color)
                                                 ? 'text-[#C0091E]'
                                                 : undefined
                                         }
                                     >
-                                        {client.color}
+                                        {pet.color ?? 'Unknown'}
                                     </span>
                                 </div>
                                 <div>
@@ -229,12 +231,12 @@ Secondary Phone: ${secondaryContactPhone}
                                     </span>{' '}
                                     <span
                                         className={
-                                            isOtherSpecies(client.species)
+                                            isOtherSpecies(pet.species)
                                                 ? 'text-[#C0091E]'
                                                 : undefined
                                         }
                                     >
-                                        {client.species}
+                                        {pet.species ?? 'Unknown'}
                                     </span>
                                 </div>
                                 <div>
@@ -243,19 +245,19 @@ Secondary Phone: ${secondaryContactPhone}
                                     </span>{' '}
                                     <span
                                         className={
-                                            isUnknown(client.breed)
+                                            isUnknown(pet.breed)
                                                 ? 'text-[#C0091E]'
                                                 : undefined
                                         }
                                     >
-                                        {client.breed}
+                                        {pet.breed ?? 'Unknown'}
                                     </span>
                                 </div>
                                 <div>
                                     <span className="text-muted-foreground">
                                         Age:
                                     </span>{' '}
-                                    {getAgeStringFromDate(client.birth_date)}
+                                    {getAgeStringFromDate(pet.birth_date)}
                                 </div>
                                 <div>
                                     <span className="text-muted-foreground">
@@ -263,12 +265,12 @@ Secondary Phone: ${secondaryContactPhone}
                                     </span>{' '}
                                     <span
                                         className={
-                                            isUnknown(client.sex)
+                                            isUnknown(pet.sex)
                                                 ? 'text-[#C0091E]'
                                                 : undefined
                                         }
                                     >
-                                        {client.sex}
+                                        {pet.sex ?? 'Unknown'}
                                     </span>
                                 </div>
 
@@ -280,18 +282,18 @@ Secondary Phone: ${secondaryContactPhone}
                                         className={
                                             isUnknown(
                                                 // handle boolean or string
-                                                typeof client.spayed_or_neutered ===
+                                                typeof pet.spayed_or_neutered ===
                                                     'boolean'
-                                                    ? client.spayed_or_neutered
+                                                    ? pet.spayed_or_neutered
                                                         ? 'yes'
                                                         : 'no'
-                                                    : client.spayed_or_neutered
+                                                    : pet.spayed_or_neutered
                                             )
                                                 ? 'text-[#C0091E]'
                                                 : undefined
                                         }
                                     >
-                                        {client.spayed_or_neutered}
+                                        {pet.spayed_or_neutered ?? 'Unknown'}
                                     </span>
                                 </div>
                                 <div className="col-span-2">
@@ -300,12 +302,12 @@ Secondary Phone: ${secondaryContactPhone}
                                     </span>{' '}
                                     <span
                                         className={
-                                            isUnknown(client.microchip)
+                                            isUnknown(pet.microchip)
                                                 ? 'text-[#C0091E]'
                                                 : undefined
                                         }
                                     >
-                                        {client.microchip}
+                                        {pet.microchip ?? 'Unknown'}
                                     </span>
                                 </div>
                             </div>
@@ -322,14 +324,14 @@ Secondary Phone: ${secondaryContactPhone}
                                         <span className="text-muted-foreground">
                                             Name:
                                         </span>{' '}
-                                        {client.secondary_contact_name}
+                                        {client?.secondary_contact_name}
                                     </div>
                                     <div>
                                         <span className="text-muted-foreground">
                                             Phone:
                                         </span>{' '}
                                         {phoneFormat(
-                                            client.secondary_contact_cell_phone
+                                            client?.secondary_contact_cell_phone
                                         )}
                                     </div>
                                 </div>
@@ -374,8 +376,7 @@ Secondary Phone: ${secondaryContactPhone}
                     <AlertDialogHeader>
                         <AlertDialogTitle>Are you sure?</AlertDialogTitle>
                         <AlertDialogDescription>
-                            This will permanently delete {client.owner_name}
-                            &apos;s client record and cannot be undone.
+                            This will permanently delete {client?.owner_name ?? 'Unknown owner'}&apos;s submission for {pet.pet_name} and cannot be undone.
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
@@ -395,3 +396,4 @@ Secondary Phone: ${secondaryContactPhone}
         </>
     );
 }
+

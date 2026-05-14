@@ -1,93 +1,81 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { supabase, type Client } from '@/utils/supabase';
+import { supabase, type Submission } from '@/utils/supabase';
 import ClientCard from './client-card';
 import { Loader2, RefreshCw } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
 import { Button } from '@/components/ui/button';
-import { getHospital } from '@/lib/edgeFunctions';
 
 export default function ClientGrid() {
-    const [clients, setClients] = useState<Client[]>([]);
+    const [submissions, setSubmissions] = useState<Submission[]>([]);
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
     const [error, setError] = useState<string | null>(null);
     useEffect(() => {
-        fetchClients();
+        fetchSubmissions();
     }, []);
 
-    async function fetchHospitalIdfromUser() {
-        const hospital = await getHospital();
-        return hospital?.id;
-    }
-
-    async function fetchClients() {
+    async function fetchSubmissions() {
         try {
             setLoading(true);
             setError(null);
 
-            const hospitalId = await fetchHospitalIdfromUser();
-
             const { data, error } = await supabase
-                .from('clients')
-                .select('*')
-                .eq('hospital_id', hospitalId)
+                .from('pets_v2')
+                .select('*, clients_v2 ( * )')
                 .order('created_at', { ascending: false });
 
             if (error) {
                 throw error;
             }
             console.log(data);
-            setClients(data || []);
+            setSubmissions((data as unknown as Submission[]) || []);
         } catch (error) {
-            console.error('Error fetching clients:', error);
-            setError('Failed to load clients. Please try again later.');
+            console.error('Error fetching submissions:', error);
+            setError('Failed to load submissions. Please try again later.');
         } finally {
             setLoading(false);
         }
     }
 
-    async function refreshClients() {
+    async function refreshSubmissions() {
         try {
             setRefreshing(true);
 
-            const hospitalId = await fetchHospitalIdfromUser();
-
             const { data, error } = await supabase
-                .from('clients')
-                .select('*')
-                .eq('hospital_id', hospitalId)
+                .from('pets_v2')
+                .select('*, clients_v2 ( * )')
                 .order('created_at', { ascending: false });
 
             if (error) {
                 throw error;
             }
 
-            // Check if there are any new clients
-            const newClientCount = data ? data.length - clients.length : 0;
+            // Check if there are any new submissions
+            const newSubmissionCount = data ? data.length - submissions.length : 0;
 
-            setClients(data || []);
+            setSubmissions((data as unknown as Submission[]) || []);
 
             // Show appropriate toast message
-            if (newClientCount > 0) {
+            if (newSubmissionCount > 0) {
                 toast({
-                    title: 'New clients found!',
-                    description: `${newClientCount} new client${
-                        newClientCount === 1 ? '' : 's'
+                    title: 'New submissions found!',
+                    description: `${newSubmissionCount} new submission${
+                        newSubmissionCount === 1 ? '' : 's'
                     } added.`,
                 });
             } else {
                 toast({
                     title: 'Refresh complete',
-                    description: 'No new clients found.',
+                    description: 'No new submissions found.',
                 });
             }
         } catch (error) {
-            console.error('Error refreshing clients:', error);
+            console.error('Error refreshing submissions:', error);
             toast({
                 title: 'Error',
-                description: 'Failed to refresh clients. Please try again.',
+                description: 'Failed to refresh submissions. Please try again.',
                 variant: 'destructive',
             });
         } finally {
@@ -95,10 +83,10 @@ export default function ClientGrid() {
         }
     }
 
-    async function deleteClient(id: number) {
+    async function deletePet(id: string) {
         try {
             const { error } = await supabase
-                .from('clients')
+                .from('pets_v2')
                 .delete()
                 .eq('id', id);
 
@@ -106,18 +94,18 @@ export default function ClientGrid() {
                 throw error;
             }
 
-            // Update the local state to remove the deleted client
-            setClients(clients.filter((client) => client.id !== id));
+            // Update the local state to remove the deleted submission
+            setSubmissions(submissions.filter((submission) => submission.id !== id));
 
             toast({
-                title: 'Client deleted',
-                description: 'The client has been successfully removed.',
+                title: 'Submission deleted',
+                description: 'The submission has been successfully removed.',
             });
         } catch (error) {
-            console.error('Error deleting client:', error);
+            console.error('Error deleting submission:', error);
             toast({
                 title: 'Error',
-                description: 'Failed to delete client. Please try again.',
+                description: 'Failed to delete submission. Please try again.',
                 variant: 'destructive',
             });
         }
@@ -135,13 +123,13 @@ export default function ClientGrid() {
         <div className="space-y-6">
             <div className="flex justify-between items-center">
                 <h2 className="text-2xl font-semibold text-[#03045E]">
-                    {clients.length} Client{clients.length !== 1 ? 's' : ''}
+                    {submissions.length} Recent Submission{submissions.length !== 1 ? 's' : ''}
                 </h2>
                 <Button
                     variant="outline"
                     size="sm"
                     className="border-[#56A0AE] text-[#56A0AE] hover:bg-[#56A0AE] hover:text-white"
-                    onClick={refreshClients}
+                    onClick={refreshSubmissions}
                     disabled={refreshing}
                 >
                     {refreshing ? (
@@ -161,17 +149,18 @@ export default function ClientGrid() {
                 <div className="text-center text-red-500 p-4 bg-red-100/10 rounded-lg">
                     <p>{error}</p>
                 </div>
-            ) : clients.length === 0 ? (
+            ) : submissions.length === 0 ? (
                 <div className="text-center p-8 bg-muted/20 rounded-lg">
-                    <p className="text-muted-foreground">No clients found.</p>
+                    <p className="text-muted-foreground">No submissions found.</p>
                 </div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {clients.map((client) => (
+                    {submissions.map((submission) => (
                         <ClientCard
-                            key={client.id}
-                            client={client}
-                            onDelete={deleteClient}
+                            key={submission.id}
+                            pet={submission}
+                            client={submission.clients_v2}
+                            onDelete={deletePet}
                         />
                     ))}
                 </div>

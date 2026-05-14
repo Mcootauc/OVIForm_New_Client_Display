@@ -1,4 +1,5 @@
 import { createBrowserClient } from '@supabase/ssr';
+import type { Database } from '@/types/supabase';
 
 export type ProfileRole = 'Admin' | 'Doctor' | 'Vet Tech';
 
@@ -29,4 +30,4 @@ const { supabaseUrl, supabaseAnonKey } = getSupabaseBrowserConfig();
 // Use the browser client in client components and browser-only helpers.
 // The SSR package stores auth state in cookies so middleware and callbacks
 // can participate in the same login flow as the client.
-export const supabase = createBrowserClient(supabaseUrl, supabaseAnonKey);
+export const supabase = createBrowserClient<Database>(supabaseUrl, supabaseAnonKey);

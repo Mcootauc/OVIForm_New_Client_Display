@@ -17,7 +17,7 @@ export default function Home() {
     type Hospital = {
         id: string;
         name: string;
-        slug: string;
+        slug: string | null;
     };
 
     useEffect(() => {

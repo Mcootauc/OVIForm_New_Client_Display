@@ -1,50 +1,12 @@
+import type { Database } from '@/types/supabase';
 export { supabase } from './supabase/client';
 
-export type clientType = {
-    id: number;
-    timestamp: string;
-    owner_name: string;
-    street: string;
-    city: string;
-    state: string;
-    zip_code: string;
-    cell_phone: string;
-    email: string;
-    pet_name: string;
-    species: string;
-    breed: string;
-    birth_date: string;
-    sex: string;
-    secondary_contact_name: string;
-    secondary_contact_cell_phone: string;
-    spayed_or_neutered: boolean;
-    color: string;
-    microchip: string;
-    initials: string;
-    created_at: string;
-};
+export type ClientRow = Database['public']['Tables']['clients_v2']['Row'];
+export type PetRow = Database['public']['Tables']['pets_v2']['Row'];
+export type HospitalRow = Database['public']['Tables']['hospitals_v2']['Row'];
 
-export type petType = {
-    id: number;
-    timestamp: string;
-    owner_name: string;
-    street: string;
-    city: string;
-    state: string;
-    zip_code: string;
-    cell_phone: string;
-    email: string;
-    pet_name: string;
-    species: string;
-    breed: string;
-    birth_date: string;
-    sex: string;
-    spayed_or_neutered: boolean;
-    color: string;
-    microchip: string;
-    initials: string;
-    created_at: string;
+// One submission = one pet row joined to its owner row.
+// Driven off pets_v2 so each card is one IDEXX paste job.
+export type Submission = PetRow & {
+    clients_v2: ClientRow | null;
 };
-
-export type Client = clientType;
-export type Pet = petType;

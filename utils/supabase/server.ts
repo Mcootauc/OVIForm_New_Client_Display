@@ -1,6 +1,7 @@
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import { type NextRequest, NextResponse } from 'next/server';
+import type { Database } from '@/types/supabase';
 
 type CookieToSet = {
     name: string;
@@ -47,7 +48,7 @@ export async function createSupabaseServerClient() {
     const { supabaseUrl, supabaseAnonKey } = getSupabaseServerConfig();
     const cookieStore = await cookies();
 
-    return createServerClient(supabaseUrl, supabaseAnonKey, {
+    return createServerClient<Database>(supabaseUrl, supabaseAnonKey, {
         cookies: buildCookieAdapter(cookieStore),
     });
 }
@@ -60,7 +61,7 @@ export function createSupabaseMiddlewareClient(request: NextRequest) {
         request,
     });
 
-    const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
+    const supabase = createServerClient<Database>(supabaseUrl, supabaseAnonKey, {
         cookies: {
             getAll() {
                 return request.cookies.getAll();
