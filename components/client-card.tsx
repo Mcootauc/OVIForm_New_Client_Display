@@ -28,7 +28,7 @@ import { getAge, getAgeStringFromDate } from '@/utils/get-age';
 interface ClientCardProps {
     pet: PetRow;
     client: ClientRow | null;
-    onDelete: (petId: string) => Promise<void>;
+    onDelete: (petId: string, clientId: string | null) => Promise<void>;
 }
 
 export default function ClientCard({ pet, client, onDelete }: ClientCardProps) {
@@ -104,7 +104,7 @@ Secondary Phone: ${phoneFormatDash(secondaryContactPhone)}
 
     const handleDelete = async () => {
         setIsDeleting(true);
-        await onDelete(pet.id);
+        await onDelete(pet.id, client?.id ?? null);
         setIsDeleting(false);
         setShowDeleteDialog(false);
     };

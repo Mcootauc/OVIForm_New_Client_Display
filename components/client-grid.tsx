@@ -82,23 +82,31 @@ export default function ClientGrid() {
         }
     }
 
-    async function deletePet(id: string) {
+    async function deletePet(petId: string, clientId: string | null) {
         try {
-            const { error } = await supabase
+            const { error: petError } = await supabase
                 .from('pets')
                 .delete()
-                .eq('id', id);
+                .eq('id', petId);
 
-            if (error) {
-                throw error;
+            if (petError) throw petError;
+
+            if (clientId) {
+                const { error: clientError } = await supabase
+                    .from('clients')
+                    .delete()
+                    .eq('id', clientId);
+
+                if (clientError) throw clientError;
             }
 
-            // Update the local state to remove the deleted submission
-            setSubmissions(submissions.filter((submission) => submission.id !== id));
+            setSubmissions((prev) =>
+                prev.filter((s) => s.id !== petId && s.clients?.id !== clientId)
+            );
 
             toast({
                 title: 'Submission deleted',
-                description: 'The submission has been successfully removed.',
+                description: 'The client and pet have been successfully removed.',
             });
         } catch (error) {
             console.error('Error deleting submission:', error);
@@ -118,11 +126,15 @@ export default function ClientGrid() {
         );
     }
 
+    const uniqueClientCount = new Set(
+        submissions.map((s) => s.clients?.id).filter(Boolean)
+    ).size;
+
     return (
         <div className="space-y-6">
             <div className="flex justify-between items-center">
                 <h2 className="text-2xl font-semibold text-[#03045E]">
-                    {submissions.length} Recent Submission{submissions.length !== 1 ? 's' : ''}
+                    {uniqueClientCount} Recent Submission{uniqueClientCount !== 1 ? 's' : ''}
                 </h2>
                 <Button
                     variant="outline"
