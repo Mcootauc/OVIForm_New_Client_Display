@@ -22,14 +22,13 @@ export default function ClientGrid() {
             setError(null);
 
             const { data, error } = await supabase
-                .from('pets_v2')
-                .select('*, clients_v2 ( * )')
+                .from('pets')
+                .select('*, clients ( * )')
                 .order('created_at', { ascending: false });
 
             if (error) {
                 throw error;
             }
-            console.log(data);
             setSubmissions((data as unknown as Submission[]) || []);
         } catch (error) {
             console.error('Error fetching submissions:', error);
@@ -44,8 +43,8 @@ export default function ClientGrid() {
             setRefreshing(true);
 
             const { data, error } = await supabase
-                .from('pets_v2')
-                .select('*, clients_v2 ( * )')
+                .from('pets')
+                .select('*, clients ( * )')
                 .order('created_at', { ascending: false });
 
             if (error) {
@@ -86,7 +85,7 @@ export default function ClientGrid() {
     async function deletePet(id: string) {
         try {
             const { error } = await supabase
-                .from('pets_v2')
+                .from('pets')
                 .delete()
                 .eq('id', id);
 
@@ -159,7 +158,7 @@ export default function ClientGrid() {
                         <ClientCard
                             key={submission.id}
                             pet={submission}
-                            client={submission.clients_v2}
+                            client={submission.clients}
                             onDelete={deletePet}
                         />
                     ))}

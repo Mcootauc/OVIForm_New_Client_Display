@@ -5,7 +5,7 @@ export type ProfileRole = 'Admin' | 'Doctor' | 'Vet Tech';
 
 export type Profile = {
     id: string;
-    hospital_id: number;
+    hospital_id: string | null;
     email: string;
     role: ProfileRole;
     is_active: boolean;

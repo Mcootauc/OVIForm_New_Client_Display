@@ -99,6 +99,10 @@ Microchip: ${pet.microchip ?? ''}
         return '';
     };
 
+    const hasSecondaryContact =
+        String(client?.secondary_contact_name ?? '').trim().length > 0 ||
+        String(client?.secondary_contact_cell_phone ?? '').trim().length > 0;
+
     return (
         <>
             <Card className="overflow-hidden border-[#737373]/20 bg-white hover:bg-white/95 transition-colors">
@@ -256,6 +260,35 @@ Microchip: ${pet.microchip ?? ''}
                                 </div>
                             </div>
                         </div>
+
+                        {/* Secondary Contact Information */}
+                        {hasSecondaryContact && (
+                            <div>
+                                <h3 className="text-sm font-medium text-[#03045E] mb-1">
+                                    Secondary Contact
+                                </h3>
+                                <div className="space-y-1 text-sm">
+                                    {client?.secondary_contact_name && (
+                                        <div>
+                                            <span className="text-muted-foreground">
+                                                Name:
+                                            </span>{' '}
+                                            {client.secondary_contact_name}
+                                        </div>
+                                    )}
+                                    {client?.secondary_contact_cell_phone && (
+                                        <div>
+                                            <span className="text-muted-foreground">
+                                                Phone:
+                                            </span>{' '}
+                                            {phoneFormat(
+                                                client.secondary_contact_cell_phone
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </CardContent>
                 <CardFooter className="pt-2 flex gap-2">

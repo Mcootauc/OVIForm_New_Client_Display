@@ -22,8 +22,8 @@ export default function PetGrid() {
             setError(null);
 
             const { data, error } = await supabase
-                .from('pets_v2')
-                .select('*, clients_v2 ( * )')
+                .from('pets')
+                .select('*, clients ( * )')
                 .order('created_at', { ascending: false });
 
             if (error) {
@@ -44,8 +44,8 @@ export default function PetGrid() {
             setRefreshing(true);
 
             const { data, error } = await supabase
-                .from('pets_v2')
-                .select('*, clients_v2 ( * )')
+                .from('pets')
+                .select('*, clients ( * )')
                 .order('created_at', { ascending: false });
 
             if (error) {
@@ -85,7 +85,7 @@ export default function PetGrid() {
 
     async function deletePet(id: string) {
         try {
-            const { error } = await supabase.from('pets_v2').delete().eq('id', id);
+            const { error } = await supabase.from('pets').delete().eq('id', id);
 
             if (error) {
                 throw error;
@@ -156,7 +156,7 @@ export default function PetGrid() {
                         <PetCard
                             key={submission.id}
                             pet={submission}
-                            client={submission.clients_v2}
+                            client={submission.clients}
                             onDelete={deletePet}
                         />
                     ))}

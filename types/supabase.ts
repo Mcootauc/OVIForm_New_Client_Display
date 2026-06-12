@@ -10,7 +10,7 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "14.5"
+    PostgrestVersion: "12.2.3 (519615d)"
   }
   public: {
     Tables: {
@@ -33,86 +33,6 @@ export type Database = {
         Relationships: []
       }
       clients: {
-        Row: {
-          birth_date: string | null
-          breed: string | null
-          cell_phone: string | null
-          city: string | null
-          color: string | null
-          created_at: string | null
-          email: string | null
-          hospital_id: number
-          id: number
-          initials: string | null
-          microchip: string | null
-          owner_name: string | null
-          pet_name: string | null
-          secondary_contact_cell_phone: string | null
-          secondary_contact_name: string | null
-          sex: string | null
-          spayed_or_neutered: string | null
-          species: string | null
-          state: string | null
-          street: string | null
-          zip_code: string | null
-        }
-        Insert: {
-          birth_date?: string | null
-          breed?: string | null
-          cell_phone?: string | null
-          city?: string | null
-          color?: string | null
-          created_at?: string | null
-          email?: string | null
-          hospital_id: number
-          id?: number
-          initials?: string | null
-          microchip?: string | null
-          owner_name?: string | null
-          pet_name?: string | null
-          secondary_contact_cell_phone?: string | null
-          secondary_contact_name?: string | null
-          sex?: string | null
-          spayed_or_neutered?: string | null
-          species?: string | null
-          state?: string | null
-          street?: string | null
-          zip_code?: string | null
-        }
-        Update: {
-          birth_date?: string | null
-          breed?: string | null
-          cell_phone?: string | null
-          city?: string | null
-          color?: string | null
-          created_at?: string | null
-          email?: string | null
-          hospital_id?: number
-          id?: number
-          initials?: string | null
-          microchip?: string | null
-          owner_name?: string | null
-          pet_name?: string | null
-          secondary_contact_cell_phone?: string | null
-          secondary_contact_name?: string | null
-          sex?: string | null
-          spayed_or_neutered?: string | null
-          species?: string | null
-          state?: string | null
-          street?: string | null
-          zip_code?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "clients_hospital_id_fkey"
-            columns: ["hospital_id"]
-            isOneToOne: false
-            referencedRelation: "hospitals"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      clients_v2: {
         Row: {
           cell_phone: string | null
           city: string | null
@@ -163,33 +83,12 @@ export type Database = {
             foreignKeyName: "clients_v2_hospital_id_fkey"
             columns: ["hospital_id"]
             isOneToOne: false
-            referencedRelation: "hospitals_v2"
+            referencedRelation: "hospitals"
             referencedColumns: ["id"]
           },
         ]
       }
       hospitals: {
-        Row: {
-          created_at: string
-          id: number
-          name: string
-          slug: string | null
-        }
-        Insert: {
-          created_at?: string
-          id?: number
-          name: string
-          slug?: string | null
-        }
-        Update: {
-          created_at?: string
-          id?: number
-          name?: string
-          slug?: string | null
-        }
-        Relationships: []
-      }
-      hospitals_v2: {
         Row: {
           created_at: string
           id: string
@@ -235,16 +134,14 @@ export type Database = {
         Row: {
           birth_date: string | null
           breed: string | null
-          cell_phone: string | null
+          client_id: string
           color: string | null
           created_at: string
-          email: string | null
-          hospital_id: number
-          id: number
+          hospital_id: string
+          id: string
           initials: string | null
           microchip: string | null
-          owner_name: string | null
-          pet_name: string | null
+          pet_name: string
           sex: string | null
           spayed_or_neutered: string | null
           species: string | null
@@ -252,16 +149,14 @@ export type Database = {
         Insert: {
           birth_date?: string | null
           breed?: string | null
-          cell_phone?: string | null
+          client_id: string
           color?: string | null
           created_at?: string
-          email?: string | null
-          hospital_id: number
-          id?: number
+          hospital_id: string
+          id?: string
           initials?: string | null
           microchip?: string | null
-          owner_name?: string | null
-          pet_name?: string | null
+          pet_name: string
           sex?: string | null
           spayed_or_neutered?: string | null
           species?: string | null
@@ -269,23 +164,28 @@ export type Database = {
         Update: {
           birth_date?: string | null
           breed?: string | null
-          cell_phone?: string | null
+          client_id?: string
           color?: string | null
           created_at?: string
-          email?: string | null
-          hospital_id?: number
-          id?: number
+          hospital_id?: string
+          id?: string
           initials?: string | null
           microchip?: string | null
-          owner_name?: string | null
-          pet_name?: string | null
+          pet_name?: string
           sex?: string | null
           spayed_or_neutered?: string | null
           species?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "pets_hospital_id_fkey"
+            foreignKeyName: "pets_v2_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pets_v2_hospital_id_fkey"
             columns: ["hospital_id"]
             isOneToOne: false
             referencedRelation: "hospitals"
@@ -359,74 +259,11 @@ export type Database = {
         }
         Relationships: []
       }
-      pets_v2: {
-        Row: {
-          birth_date: string | null
-          breed: string | null
-          client_id: string
-          color: string | null
-          created_at: string
-          hospital_id: string
-          id: string
-          initials: string | null
-          microchip: string | null
-          pet_name: string
-          sex: string | null
-          spayed_or_neutered: string | null
-          species: string | null
-        }
-        Insert: {
-          birth_date?: string | null
-          breed?: string | null
-          client_id: string
-          color?: string | null
-          created_at?: string
-          hospital_id: string
-          id?: string
-          initials?: string | null
-          microchip?: string | null
-          pet_name: string
-          sex?: string | null
-          spayed_or_neutered?: string | null
-          species?: string | null
-        }
-        Update: {
-          birth_date?: string | null
-          breed?: string | null
-          client_id?: string
-          color?: string | null
-          created_at?: string
-          hospital_id?: string
-          id?: string
-          initials?: string | null
-          microchip?: string | null
-          pet_name?: string
-          sex?: string | null
-          spayed_or_neutered?: string | null
-          species?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "pets_v2_client_id_fkey"
-            columns: ["client_id"]
-            isOneToOne: false
-            referencedRelation: "clients_v2"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "pets_v2_hospital_id_fkey"
-            columns: ["hospital_id"]
-            isOneToOne: false
-            referencedRelation: "hospitals_v2"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       profiles: {
         Row: {
           created_at: string
           email: string
-          hospital_id: number
+          hospital_id: string | null
           id: string
           is_active: boolean
           role: string
@@ -434,7 +271,7 @@ export type Database = {
         Insert: {
           created_at?: string
           email: string
-          hospital_id: number
+          hospital_id?: string | null
           id: string
           is_active?: boolean
           role?: string
@@ -442,7 +279,7 @@ export type Database = {
         Update: {
           created_at?: string
           email?: string
-          hospital_id?: number
+          hospital_id?: string | null
           id?: string
           is_active?: boolean
           role?: string
@@ -462,7 +299,11 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      create_client_with_pet: {
+        Args: { p_client: Json; p_pet: Json }
+        Returns: Json
+      }
+      create_pet_for_client: { Args: { p_pet: Json }; Returns: Json }
     }
     Enums: {
       [_ in never]: never
