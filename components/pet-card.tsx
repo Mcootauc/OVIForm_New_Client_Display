@@ -93,10 +93,8 @@ Microchip: ${pet.microchip ?? ''}
     };
 
     const phoneFormat = (phone: string | null | undefined) => {
-        if (phone) {
-            return phone.replace(/(\d{3})(\d{3})(\d{4})/, '($1) $2-$3');
-        }
-        return '';
+        if (!phone) return '';
+        return phone.replace(/(\d{3})(\d{3})(\d{4})/, '($1) $2-$3');
     };
 
     const hasSecondaryContact =
@@ -349,4 +347,3 @@ Microchip: ${pet.microchip ?? ''}
         </>
     );
 }
-

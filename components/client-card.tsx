@@ -53,17 +53,12 @@ export default function ClientCard({ pet, client, onDelete }: ClientCardProps) {
 
     const copyToClipboard = () => {
         const ownerName = client?.owner_name ?? 'Unknown owner';
-        // Split owner name into first name and last name
-        const [firstName, ...lastNameParts] = ownerName // last name parts include middle name (e.g. First name: Brendan, Last name: Michael Tan)
-            .trim()
-            .split(/\s+/);
-        const lastName = lastNameParts.join(' '); // join the last name parts back together (e.g. Brendan Michael Tan => Michael Tan)
+        const [firstName, ...lastNameParts] = ownerName.trim().split(/\s+/);
+        const lastName = lastNameParts.join(' ');
 
-        // Secondary Contact Information
         let secondaryContactName = '';
         let secondaryContactPhone = '';
 
-        // checks if secondary contact name and phone are not null
         if (client?.secondary_contact_name) {
             secondaryContactName = client.secondary_contact_name;
         }
@@ -71,10 +66,9 @@ export default function ClientCard({ pet, client, onDelete }: ClientCardProps) {
             secondaryContactPhone = client.secondary_contact_cell_phone;
         }
 
-        // Split secondary contact name into first name and last name
         const [secondaryFirstName, ...secondaryLastNameParts] =
-            secondaryContactName.trim().split(/\s+/); // last name parts include middle name (e.g. First name: Brendan, Last name: Michael Tan)
-        const secondaryLastName = secondaryLastNameParts.join(' '); // join the last name parts back together (e.g. Brendan Michael Tan => Michael Tan)
+            secondaryContactName.trim().split(/\s+/);
+        const secondaryLastName = secondaryLastNameParts.join(' ');
 
         const clientInfo = `
 Client Information:
@@ -84,12 +78,12 @@ Address: ${client?.street ?? ''}
 City: ${client?.city ?? ''}
 State: ${client?.state ?? ''}
 Zip Code: ${client?.zip_code ?? ''}
-Phone: ${client?.cell_phone ?? ''}
+Phone: ${phoneFormatDash(client?.cell_phone)}
 Email: ${client?.email ?? ''}
 
 Pet Information:
 Name: ${pet.pet_name}
-Species: ${getScientificName()}
+Species: ${getScientificName(pet.species)}
 Breed: ${pet.breed ?? ''}
 Age: ${getAge(pet.birth_date ?? '')}
 Sex: ${pet.sex ?? ''}
@@ -100,7 +94,7 @@ Microchip: ${pet.microchip ?? ''}
 Secondary Contact Information:
 Secondary First Name: ${secondaryFirstName}
 Secondary Last Name: ${secondaryLastName}
-Secondary Phone: ${secondaryContactPhone}
+Secondary Phone: ${phoneFormatDash(secondaryContactPhone)}
     `.trim();
 
         navigator.clipboard.writeText(clientInfo);
@@ -115,19 +109,17 @@ Secondary Phone: ${secondaryContactPhone}
         setShowDeleteDialog(false);
     };
 
-    const getPetIcon = () => {
-        const species = pet.species?.toLowerCase();
-        if (species === 'dog')
-            return <Dog className="h-5 w-5 text-[#03045E]" />;
-        if (species === 'cat')
-            return <Cat className="h-5 w-5 text-[#03045E]" />;
+    const getPetIcon = (species: string | null | undefined) => {
+        const s = species?.toLowerCase();
+        if (s === 'dog') return <Dog className="h-5 w-5 text-[#03045E]" />;
+        if (s === 'cat') return <Cat className="h-5 w-5 text-[#03045E]" />;
         return <AlertCircle className="h-5 w-5 text-[#03045E]" />;
     };
 
-    const getScientificName = () => {
-        const species = pet.species?.toLowerCase();
-        if (species === 'dog') return 'Canine';
-        if (species === 'cat') return 'Feline';
+    const getScientificName = (species: string | null | undefined) => {
+        const s = species?.toLowerCase();
+        if (s === 'dog') return 'Canine';
+        if (s === 'cat') return 'Feline';
         return 'Unknown';
     };
 
@@ -136,6 +128,12 @@ Secondary Phone: ${secondaryContactPhone}
             return phone.replace(/(\d{3})(\d{3})(\d{4})/, '($1) $2-$3');
         }
         return '';
+    };
+
+    const phoneFormatDash = (phone: string | null | undefined) => {
+        if (!phone) return '';
+        const digits = phone.replace(/\D/g, '');
+        return digits.replace(/(\d{3})(\d{3})(\d{4})/, '$1-$2-$3');
     };
 
     const hasSecondaryContact =
@@ -202,7 +200,7 @@ Secondary Phone: ${secondaryContactPhone}
                         {/* Pet Information */}
                         <div>
                             <h3 className="text-md font-medium text-[#03045E] mb-1 flex items-center gap-1">
-                                {getPetIcon()} Pet Information
+                                {getPetIcon(pet.species)} Pet Information
                             </h3>
                             <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
                                 <div>
@@ -281,7 +279,6 @@ Secondary Phone: ${secondaryContactPhone}
                                     <span
                                         className={
                                             isUnknown(
-                                                // handle boolean or string
                                                 typeof pet.spayed_or_neutered ===
                                                     'boolean'
                                                     ? pet.spayed_or_neutered
@@ -320,20 +317,24 @@ Secondary Phone: ${secondaryContactPhone}
                                     Secondary Contact Information
                                 </h3>
                                 <div className="space-y-1 text-sm">
-                                    <div>
-                                        <span className="text-muted-foreground">
-                                            Name:
-                                        </span>{' '}
-                                        {client?.secondary_contact_name}
-                                    </div>
-                                    <div>
-                                        <span className="text-muted-foreground">
-                                            Phone:
-                                        </span>{' '}
-                                        {phoneFormat(
-                                            client?.secondary_contact_cell_phone
-                                        )}
-                                    </div>
+                                    {client?.secondary_contact_name && (
+                                        <div>
+                                            <span className="text-muted-foreground">
+                                                Name:
+                                            </span>{' '}
+                                            {client.secondary_contact_name}
+                                        </div>
+                                    )}
+                                    {client?.secondary_contact_cell_phone && (
+                                        <div>
+                                            <span className="text-muted-foreground">
+                                                Phone:
+                                            </span>{' '}
+                                            {phoneFormat(
+                                                client.secondary_contact_cell_phone
+                                            )}
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         )}
@@ -396,4 +397,3 @@ Secondary Phone: ${secondaryContactPhone}
         </>
     );
 }
-
