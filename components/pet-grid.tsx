@@ -30,7 +30,7 @@ export default function PetGrid() {
             const hospitalId = await fetchHospitalIdfromUser();
             const { data, error } = await supabase
                 .from('pets')
-                .select('*')
+                .select('*, clients(owner_name, email, cell_phone)')
                 .eq('hospital_id', hospitalId)
                 .order('created_at', { ascending: false });
 
@@ -54,7 +54,7 @@ export default function PetGrid() {
             const hospitalId = await fetchHospitalIdfromUser();
             const { data, error } = await supabase
                 .from('pets')
-                .select('*')
+                .select('*, clients(owner_name, email, cell_phone)')
                 .eq('hospital_id', hospitalId)
                 .order('created_at', { ascending: false });
 
@@ -93,7 +93,7 @@ export default function PetGrid() {
         }
     }
 
-    async function deletePet(id: number) {
+    async function deletePet(id: string) {
         try {
             const { error } = await supabase.from('pets').delete().eq('id', id);
 

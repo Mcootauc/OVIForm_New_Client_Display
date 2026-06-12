@@ -27,7 +27,7 @@ import { getAge, getAgeStringFromDate } from '@/utils/get-age';
 
 interface ClientCardProps {
     client: clientType;
-    onDelete: (id: number) => Promise<void>;
+    onDelete: (id: string) => Promise<void>;
 }
 
 export default function ClientCard({ client, onDelete }: ClientCardProps) {
@@ -50,51 +50,47 @@ export default function ClientCard({ client, onDelete }: ClientCardProps) {
         );
     };
 
+    const pets = client.pets ?? [];
+
     const copyToClipboard = () => {
-        // Split owner name into first name and last name
-        const [firstName, ...lastNameParts] = client.owner_name // last name parts include middle name (e.g. First name: Brendan, Last name: Michael Tan)
+        const [firstName, ...lastNameParts] = client.owner_name
             .trim()
             .split(/\s+/);
-        const lastName = lastNameParts.join(' '); // join the last name parts back together (e.g. Brendan Michael Tan => Michael Tan)
+        const lastName = lastNameParts.join(' ');
 
-        // Secondary Contact Information
-        let secondaryContactName = '';
-        let secondaryContactPhone = '';
-
-        // checks if secondary contact name and phone are not null
-        if (client.secondary_contact_name) {
-            secondaryContactName = client.secondary_contact_name;
-        }
-        if (client.secondary_contact_cell_phone) {
-            secondaryContactPhone = client.secondary_contact_cell_phone;
-        }
-
-        // Split secondary contact name into first name and last name
+        const secondaryContactName = client.secondary_contact_name ?? '';
+        const secondaryContactPhone = client.secondary_contact_cell_phone ?? '';
         const [secondaryFirstName, ...secondaryLastNameParts] =
-            secondaryContactName.trim().split(/\s+/); // last name parts include middle name (e.g. First name: Brendan, Last name: Michael Tan)
-        const secondaryLastName = secondaryLastNameParts.join(' '); // join the last name parts back together (e.g. Brendan Michael Tan => Michael Tan)
+            secondaryContactName.trim().split(/\s+/);
+        const secondaryLastName = secondaryLastNameParts.join(' ');
+
+        const petSections = pets
+            .map(
+                (pet) => `
+Pet Information:
+Name: ${pet.pet_name}
+Species: ${getScientificNameForPet(pet.species)}
+Breed: ${pet.breed ?? ''}
+Age: ${getAge(pet.birth_date ?? '')}
+Sex: ${pet.sex ?? ''}
+Spayed Neutered: ${pet.spayed_or_neutered ?? ''}
+Color: ${pet.color ?? ''}
+Microchip: ${pet.microchip ?? ''}
+`
+            )
+            .join('');
 
         const clientInfo = `
 Client Information:
 First Name: ${firstName}
 Last Name: ${lastName}
-Address: ${client.street}
-City: ${client.city}
-State: ${client.state}
-Zip Code: ${client.zip_code}
-Phone: ${client.cell_phone}
-Email: ${client.email}
-
-Pet Information:
-Name: ${client.pet_name}
-Species: ${getScientificName()}
-Breed: ${client.breed}
-Age: ${getAge(client.birth_date)}
-Sex: ${client.sex}
-Spayed Neutered: ${client.spayed_or_neutered}
-Color: ${client.color}
-Microchip: ${''}
-
+Address: ${client.street ?? ''}
+City: ${client.city ?? ''}
+State: ${client.state ?? ''}
+Zip Code: ${client.zip_code ?? ''}
+Phone: ${client.cell_phone ?? ''}
+Email: ${client.email ?? ''}
+${petSections}
 Secondary Contact Information:
 Secondary First Name: ${secondaryFirstName}
 Secondary Last Name: ${secondaryLastName}
@@ -113,23 +109,21 @@ Secondary Phone: ${secondaryContactPhone}
         setShowDeleteDialog(false);
     };
 
-    const getPetIcon = () => {
-        const species = client.species?.toLowerCase();
-        if (species === 'dog')
-            return <Dog className="h-5 w-5 text-[#03045E]" />;
-        if (species === 'cat')
-            return <Cat className="h-5 w-5 text-[#03045E]" />;
+    const getPetIcon = (species: string | null | undefined) => {
+        const s = species?.toLowerCase();
+        if (s === 'dog') return <Dog className="h-5 w-5 text-[#03045E]" />;
+        if (s === 'cat') return <Cat className="h-5 w-5 text-[#03045E]" />;
         return <AlertCircle className="h-5 w-5 text-[#03045E]" />;
     };
 
-    const getScientificName = () => {
-        const species = client.species?.toLowerCase();
-        if (species === 'dog') return 'Canine';
-        if (species === 'cat') return 'Feline';
+    const getScientificNameForPet = (species: string | null | undefined) => {
+        const s = species?.toLowerCase();
+        if (s === 'dog') return 'Canine';
+        if (s === 'cat') return 'Feline';
         return 'Unknown';
     };
 
-    const phoneFormat = (phone: string) => {
+    const phoneFormat = (phone: string | null | undefined) => {
         if (phone) {
             return phone.replace(/(\d{3})(\d{3})(\d{4})/, '($1) $2-$3');
         }
@@ -198,118 +192,130 @@ Secondary Phone: ${secondaryContactPhone}
                         </div>
 
                         {/* Pet Information */}
-                        <div>
-                            <h3 className="text-md font-medium text-[#03045E] mb-1 flex items-center gap-1">
-                                {getPetIcon()} Pet Information
-                            </h3>
-                            <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
-                                <div>
-                                    <span className="text-muted-foreground">
-                                        Name:
-                                    </span>{' '}
-                                    {client.pet_name}
-                                </div>
-                                <div>
-                                    <span className="text-muted-foreground">
-                                        Color:
-                                    </span>{' '}
-                                    <span
-                                        className={
-                                            isUnknown(client.color)
-                                                ? 'text-[#C0091E]'
-                                                : undefined
-                                        }
-                                    >
-                                        {client.color}
-                                    </span>
-                                </div>
-                                <div>
-                                    <span className="text-muted-foreground">
-                                        Species:
-                                    </span>{' '}
-                                    <span
-                                        className={
-                                            isOtherSpecies(client.species)
-                                                ? 'text-[#C0091E]'
-                                                : undefined
-                                        }
-                                    >
-                                        {client.species}
-                                    </span>
-                                </div>
-                                <div>
-                                    <span className="text-muted-foreground">
-                                        Breed:
-                                    </span>{' '}
-                                    <span
-                                        className={
-                                            isUnknown(client.breed)
-                                                ? 'text-[#C0091E]'
-                                                : undefined
-                                        }
-                                    >
-                                        {client.breed}
-                                    </span>
-                                </div>
-                                <div>
-                                    <span className="text-muted-foreground">
-                                        Age:
-                                    </span>{' '}
-                                    {getAgeStringFromDate(client.birth_date)}
-                                </div>
-                                <div>
-                                    <span className="text-muted-foreground">
-                                        Sex:
-                                    </span>{' '}
-                                    <span
-                                        className={
-                                            isUnknown(client.sex)
-                                                ? 'text-[#C0091E]'
-                                                : undefined
-                                        }
-                                    >
-                                        {client.sex}
-                                    </span>
-                                </div>
-
-                                <div className="col-span-2">
-                                    <span className="text-muted-foreground">
-                                        Spayed/Neutered:
-                                    </span>{' '}
-                                    <span
-                                        className={
-                                            isUnknown(
-                                                // handle boolean or string
-                                                typeof client.spayed_or_neutered ===
-                                                    'boolean'
-                                                    ? client.spayed_or_neutered
-                                                        ? 'yes'
-                                                        : 'no'
-                                                    : client.spayed_or_neutered
-                                            )
-                                                ? 'text-[#C0091E]'
-                                                : undefined
-                                        }
-                                    >
-                                        {client.spayed_or_neutered}
-                                    </span>
-                                </div>
-                                <div className="col-span-2">
-                                    <span className="text-muted-foreground">
-                                        Microchip:
-                                    </span>{' '}
-                                    <span
-                                        className={
-                                            isUnknown(client.microchip)
-                                                ? 'text-[#C0091E]'
-                                                : undefined
-                                        }
-                                    >
-                                        {client.microchip}
-                                    </span>
-                                </div>
+                        {pets.length === 0 ? (
+                            <div>
+                                <h3 className="text-md font-medium text-[#03045E] mb-1 flex items-center gap-1">
+                                    <AlertCircle className="h-5 w-5 text-[#03045E]" />{' '}
+                                    Pet Information
+                                </h3>
+                                <p className="text-sm text-muted-foreground">
+                                    No pet records found.
+                                </p>
                             </div>
-                        </div>
+                        ) : (
+                            pets.map((pet, index) => (
+                                <div key={pet.id}>
+                                    <h3 className="text-md font-medium text-[#03045E] mb-1 flex items-center gap-1">
+                                        {getPetIcon(pet.species)}{' '}
+                                        {pets.length > 1
+                                            ? `Pet ${index + 1} Information`
+                                            : 'Pet Information'}
+                                    </h3>
+                                    <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
+                                        <div>
+                                            <span className="text-muted-foreground">
+                                                Name:
+                                            </span>{' '}
+                                            {pet.pet_name}
+                                        </div>
+                                        <div>
+                                            <span className="text-muted-foreground">
+                                                Color:
+                                            </span>{' '}
+                                            <span
+                                                className={
+                                                    isUnknown(pet.color)
+                                                        ? 'text-[#C0091E]'
+                                                        : undefined
+                                                }
+                                            >
+                                                {pet.color}
+                                            </span>
+                                        </div>
+                                        <div>
+                                            <span className="text-muted-foreground">
+                                                Species:
+                                            </span>{' '}
+                                            <span
+                                                className={
+                                                    isOtherSpecies(pet.species)
+                                                        ? 'text-[#C0091E]'
+                                                        : undefined
+                                                }
+                                            >
+                                                {pet.species}
+                                            </span>
+                                        </div>
+                                        <div>
+                                            <span className="text-muted-foreground">
+                                                Breed:
+                                            </span>{' '}
+                                            <span
+                                                className={
+                                                    isUnknown(pet.breed)
+                                                        ? 'text-[#C0091E]'
+                                                        : undefined
+                                                }
+                                            >
+                                                {pet.breed}
+                                            </span>
+                                        </div>
+                                        <div>
+                                            <span className="text-muted-foreground">
+                                                Age:
+                                            </span>{' '}
+                                            {getAgeStringFromDate(
+                                                pet.birth_date
+                                            )}
+                                        </div>
+                                        <div>
+                                            <span className="text-muted-foreground">
+                                                Sex:
+                                            </span>{' '}
+                                            <span
+                                                className={
+                                                    isUnknown(pet.sex)
+                                                        ? 'text-[#C0091E]'
+                                                        : undefined
+                                                }
+                                            >
+                                                {pet.sex}
+                                            </span>
+                                        </div>
+                                        <div className="col-span-2">
+                                            <span className="text-muted-foreground">
+                                                Spayed/Neutered:
+                                            </span>{' '}
+                                            <span
+                                                className={
+                                                    isUnknown(
+                                                        pet.spayed_or_neutered
+                                                    )
+                                                        ? 'text-[#C0091E]'
+                                                        : undefined
+                                                }
+                                            >
+                                                {pet.spayed_or_neutered}
+                                            </span>
+                                        </div>
+                                        <div className="col-span-2">
+                                            <span className="text-muted-foreground">
+                                                Microchip:
+                                            </span>{' '}
+                                            <span
+                                                className={
+                                                    isUnknown(pet.microchip)
+                                                        ? 'text-[#C0091E]'
+                                                        : undefined
+                                                }
+                                            >
+                                                {pet.microchip}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))
+                        )}
 
                         {/* Secondary Contact Information */}
                         {hasSecondaryContact && (

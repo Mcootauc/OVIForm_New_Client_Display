@@ -27,7 +27,7 @@ import { getAge, getAgeStringFromDate } from '@/utils/get-age';
 
 interface PetCardProps {
     petFormData: petType;
-    onDelete: (id: number) => Promise<void>;
+    onDelete: (id: string) => Promise<void>;
 }
 
 export default function PetCard({ petFormData, onDelete }: PetCardProps) {
@@ -55,12 +55,12 @@ export default function PetCard({ petFormData, onDelete }: PetCardProps) {
 Pet Information:
 Name: ${petFormData.pet_name}
 Species: ${getScientificName()}
-Breed: ${petFormData.breed}
-Age: ${getAge(petFormData.birth_date)}
-Sex: ${petFormData.sex}
-Spayed Neutered: ${petFormData.spayed_or_neutered}
-Color: ${petFormData.color}
-Microchip: ${''}
+Breed: ${petFormData.breed ?? ''}
+Age: ${getAge(petFormData.birth_date ?? '')}
+Sex: ${petFormData.sex ?? ''}
+Spayed Neutered: ${petFormData.spayed_or_neutered ?? ''}
+Color: ${petFormData.color ?? ''}
+Microchip: ${petFormData.microchip ?? ''}
     `.trim();
 
         navigator.clipboard.writeText(petInfo);
@@ -91,9 +91,14 @@ Microchip: ${''}
         return 'Unknown';
     };
 
-    const phoneFormat = (phone: string) => {
+    const phoneFormat = (phone: string | null | undefined) => {
+        if (!phone) return '';
         return phone.replace(/(\d{3})(\d{3})(\d{4})/, '($1) $2-$3');
     };
+
+    const ownerName = petFormData.clients?.owner_name ?? '';
+    const ownerEmail = petFormData.clients?.email ?? '';
+    const ownerPhone = petFormData.clients?.cell_phone ?? '';
 
     return (
         <>
@@ -101,7 +106,7 @@ Microchip: ${''}
                 <CardHeader className="bg-[#737373]/5 pb-2">
                     <div className="flex justify-between items-start">
                         <CardTitle className="text-xl font-bold text-[#03045E]">
-                            {petFormData.owner_name}
+                            {ownerName || petFormData.pet_name}
                         </CardTitle>
                         <Badge
                             variant="outline"
@@ -123,17 +128,23 @@ Microchip: ${''}
                             <div className="space-y-1 text-sm">
                                 <div>
                                     <span className="text-muted-foreground">
+                                        Name:
+                                    </span>{' '}
+                                    {ownerName}
+                                </div>
+                                <div>
+                                    <span className="text-muted-foreground">
                                         Email:
                                     </span>{' '}
                                     <span className="text-[#56A0AE] underline">
-                                        {petFormData.email}
+                                        {ownerEmail}
                                     </span>
                                 </div>
                                 <div>
                                     <span className="text-muted-foreground">
                                         Phone:
                                     </span>{' '}
-                                    {phoneFormat(petFormData.cell_phone)}
+                                    {phoneFormat(ownerPhone)}
                                 </div>
                             </div>
                         </div>

@@ -31,7 +31,7 @@ export default function ClientGrid() {
 
             const { data, error } = await supabase
                 .from('clients')
-                .select('*')
+                .select('*, pets(*)')
                 .eq('hospital_id', hospitalId)
                 .order('created_at', { ascending: false });
 
@@ -56,7 +56,7 @@ export default function ClientGrid() {
 
             const { data, error } = await supabase
                 .from('clients')
-                .select('*')
+                .select('*, pets(*)')
                 .eq('hospital_id', hospitalId)
                 .order('created_at', { ascending: false });
 
@@ -95,7 +95,7 @@ export default function ClientGrid() {
         }
     }
 
-    async function deleteClient(id: number) {
+    async function deleteClient(id: string) {
         try {
             const { error } = await supabase
                 .from('clients')
