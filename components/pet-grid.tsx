@@ -1,44 +1,36 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { supabase, type Pet } from '@/utils/supabase';
+import { supabase, type Submission } from '@/utils/supabase';
 import PetCard from '@/components/pet-card';
 import { Loader2, RefreshCw } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
 import { Button } from '@/components/ui/button';
-import { getHospital } from '@/lib/edgeFunctions';
 
 export default function PetGrid() {
-    const [pets, setPets] = useState<Pet[]>([]);
+    const [submissions, setSubmissions] = useState<Submission[]>([]);
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
     const [error, setError] = useState<string | null>(null);
     useEffect(() => {
-        fetchPets();
+        fetchSubmissions();
     }, []);
 
-    async function fetchHospitalIdfromUser() {
-        const hospital = await getHospital();
-        return hospital?.id;
-    }
-
-    async function fetchPets() {
+    async function fetchSubmissions() {
         try {
             setLoading(true);
             setError(null);
 
-            const hospitalId = await fetchHospitalIdfromUser();
             const { data, error } = await supabase
                 .from('pets')
-                .select('*, clients(owner_name, email, cell_phone)')
-                .eq('hospital_id', hospitalId)
+                .select('*, clients ( * )')
                 .order('created_at', { ascending: false });
 
             if (error) {
                 throw error;
             }
 
-            setPets(data || []);
+            setSubmissions((data as unknown as Submission[]) || []);
         } catch (error) {
             console.error('Error fetching pets:', error);
             setError('Failed to load pets. Please try again later.');
@@ -47,15 +39,13 @@ export default function PetGrid() {
         }
     }
 
-    async function refreshPets() {
+    async function refreshSubmissions() {
         try {
             setRefreshing(true);
 
-            const hospitalId = await fetchHospitalIdfromUser();
             const { data, error } = await supabase
                 .from('pets')
-                .select('*, clients(owner_name, email, cell_phone)')
-                .eq('hospital_id', hospitalId)
+                .select('*, clients ( * )')
                 .order('created_at', { ascending: false });
 
             if (error) {
@@ -63,9 +53,9 @@ export default function PetGrid() {
             }
 
             // Check if there are any new clients
-            const newPetCount = data ? data.length - pets.length : 0;
+            const newPetCount = data ? data.length - submissions.length : 0;
 
-            setPets(data || []);
+            setSubmissions((data as unknown as Submission[]) || []);
 
             // Show appropriate toast message
             if (newPetCount > 0) {
@@ -102,7 +92,7 @@ export default function PetGrid() {
             }
 
             // Update the local state to remove the deleted client
-            setPets(pets.filter((pet) => pet.id !== id));
+            setSubmissions(submissions.filter((submission) => submission.id !== id));
 
             toast({
                 title: 'Pet deleted',
@@ -130,13 +120,13 @@ export default function PetGrid() {
         <div className="space-y-6">
             <div className="flex justify-between items-center">
                 <h2 className="text-2xl font-semibold text-[#03045E]">
-                    {pets.length} Pet{pets.length !== 1 ? 's' : ''}
+                    {submissions.length} Pet{submissions.length !== 1 ? 's' : ''}
                 </h2>
                 <Button
                     variant="outline"
                     size="sm"
                     className="border-[#56A0AE] text-[#56A0AE] hover:bg-[#56A0AE] hover:text-white"
-                    onClick={refreshPets}
+                    onClick={refreshSubmissions}
                     disabled={refreshing}
                 >
                     {refreshing ? (
@@ -156,16 +146,17 @@ export default function PetGrid() {
                 <div className="text-center text-red-500 p-4 bg-red-100/10 rounded-lg">
                     <p>{error}</p>
                 </div>
-            ) : pets.length === 0 ? (
+            ) : submissions.length === 0 ? (
                 <div className="text-center p-8 bg-muted/20 rounded-lg">
                     <p className="text-muted-foreground">No pets found.</p>
                 </div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {pets.map((pet) => (
+                    {submissions.map((submission) => (
                         <PetCard
-                            key={pet.id}
-                            petFormData={pet}
+                            key={submission.id}
+                            pet={submission}
+                            client={submission.clients}
                             onDelete={deletePet}
                         />
                     ))}

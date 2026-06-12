@@ -6,14 +6,24 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts"
 import { createClient } from 'jsr:@supabase/supabase-js@2'
 
-const allowedOrigins = [
-  'http://localhost:3000',
-  'https://v0-next-js-client-app-delta.vercel.app',
+const ALLOWED_ORIGIN_REGEXES = [
+  /^http:\/\/localhost:3000$/,
+  // any Vercel deployment of this project (prod + every preview)
+  /^https:\/\/oviform(-[a-z0-9-]+)?(\.vercel\.app|\.com)$/,
+  /^https:\/\/oviform-git-[a-z0-9-]+\.vercel\.app$/,
+  /^https:\/\/oviform-[a-z0-9-]+-mcootauc-gmailcoms-projects\.vercel\.app$/,
 ]
+
+function isOriginAllowed(origin: string, extra: string[]): boolean {
+  if (ALLOWED_ORIGIN_REGEXES.some((r) => r.test(origin))) return true
+  return extra.some((s) => s === origin)
+}
 
 Deno.serve(async (req) => {
   const origin = req.headers.get('Origin') || ''
-  const isAllowedOrigin = allowedOrigins.includes(origin)
+  const extra = (Deno.env.get('ALLOWED_ORIGINS') ?? '')
+    .split(',').map((s) => s.trim()).filter(Boolean)
+  const isAllowedOrigin = isOriginAllowed(origin, extra)
   const corsHeaders: Record<string, string> = {
     ...(isAllowedOrigin && { 'Access-Control-Allow-Origin': origin }),
     'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
