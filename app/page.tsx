@@ -43,7 +43,7 @@ export default function Home() {
                     <main className="flex-1">
                         <div className="container mx-auto py-8 px-4">
                             <Tabs defaultValue="clients" className="w-full">
-                                <TabsList className="grid w-full max-w-md grid-cols-2 mb-8 bg-[#737373]/5">
+                                <TabsList className="grid w-full max-w-md grid-cols-1 mb-8 bg-[#737373]/5">
                                     <TabsTrigger
                                         value="clients"
                                         className="flex items-center gap-2 data-[state=active]:bg-[#56A0AE] data-[state=active]:text-white hover:text-[#56A0AE] data-[state=active]:hover:text-white"
@@ -51,22 +51,22 @@ export default function Home() {
                                         <Users className="h-4 w-4" />
                                         Client Information
                                     </TabsTrigger>
-                                    <TabsTrigger
+                                    {/* <TabsTrigger
                                         value="pets"
                                         className="flex items-center gap-2 data-[state=active]:bg-[#56A0AE] data-[state=active]:text-white hover:text-[#56A0AE] data-[state=active]:hover:text-white"
                                     >
                                         <PawPrint className="h-4 w-4" />
                                         Pet Gallery
-                                    </TabsTrigger>
+                                    </TabsTrigger> */}
                                 </TabsList>
 
                                 <TabsContent value="clients">
                                     <ClientGrid />
                                 </TabsContent>
-
+                                {/* 
                                 <TabsContent value="pets">
                                     <PetGrid />
-                                </TabsContent>
+                                </TabsContent> */}
                             </Tabs>
                         </div>
                     </main>

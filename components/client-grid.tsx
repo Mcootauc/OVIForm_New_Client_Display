@@ -7,54 +7,72 @@ import { Loader2, RefreshCw } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
 import { Button } from '@/components/ui/button';
 
+const PAGE_SIZE = 10;
+
 export default function ClientGrid() {
     const [submissions, setSubmissions] = useState<Submission[]>([]);
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [page, setPage] = useState(0);
+    const [hasMore, setHasMore] = useState(true);
+    const [loadingMore, setLoadingMore] = useState(false);
+
     useEffect(() => {
-        fetchSubmissions();
+        fetchPage(0, false);
     }, []);
 
-    async function fetchSubmissions() {
+    async function fetchPage(pageIndex: number, append: boolean) {
         try {
-            setLoading(true);
+            if (!append) setLoading(true);
             setError(null);
+
+            const from = pageIndex * PAGE_SIZE;
+            const to = from + PAGE_SIZE - 1;
 
             const { data, error } = await supabase
                 .from('pets')
                 .select('*, clients ( * )')
-                .order('created_at', { ascending: false });
+                .order('created_at', { ascending: false })
+                .range(from, to);
 
             if (error) {
                 throw error;
             }
-            setSubmissions((data as unknown as Submission[]) || []);
+            
+            const rows = (data as unknown as Submission[]) || [];
+            setHasMore(rows.length === PAGE_SIZE);
+            setSubmissions((prev) => (append ? [...prev, ...rows] : rows));
+            return rows;
         } catch (error) {
             console.error('Error fetching submissions:', error);
             setError('Failed to load submissions. Please try again later.');
+            return [];
         } finally {
-            setLoading(false);
+            if (!append) setLoading(false);
         }
     }
 
     async function refreshSubmissions() {
         try {
             setRefreshing(true);
+            const oldFirstId = submissions[0]?.id;
 
-            const { data, error } = await supabase
-                .from('pets')
-                .select('*, clients ( * )')
-                .order('created_at', { ascending: false });
+            const rows = await fetchPage(0, false);
+            setPage(0);
 
-            if (error) {
-                throw error;
+            // Calculate new submissions by finding where the old first item is in the new data
+            let newSubmissionCount = 0;
+            if (oldFirstId) {
+                const oldIndex = rows.findIndex(r => r.id === oldFirstId);
+                if (oldIndex === -1) {
+                    newSubmissionCount = rows.length;
+                } else {
+                    newSubmissionCount = oldIndex;
+                }
+            } else {
+                newSubmissionCount = rows.length;
             }
-
-            // Check if there are any new submissions
-            const newSubmissionCount = data ? data.length - submissions.length : 0;
-
-            setSubmissions((data as unknown as Submission[]) || []);
 
             // Show appropriate toast message
             if (newSubmissionCount > 0) {
@@ -79,6 +97,16 @@ export default function ClientGrid() {
             });
         } finally {
             setRefreshing(false);
+        }
+    }
+
+    async function loadMore() {
+        setLoadingMore(true);
+        try {
+            await fetchPage(page + 1, true);
+            setPage(prev => prev + 1);
+        } finally {
+            setLoadingMore(false);
         }
     }
 
@@ -174,6 +202,26 @@ export default function ClientGrid() {
                             onDelete={deletePet}
                         />
                     ))}
+                </div>
+            )}
+
+            {hasMore && submissions.length > 0 && (
+                <div className="flex justify-center pt-2">
+                    <Button
+                        variant="outline"
+                        onClick={loadMore}
+                        disabled={loadingMore}
+                        className="border-[#56A0AE] text-[#56A0AE] hover:bg-[#56A0AE] hover:text-white"
+                    >
+                        {loadingMore ? (
+                            <>
+                                <Loader2 className="h-4 w-4 mr-2 animate-spin" />{' '}
+                                Loading...
+                            </>
+                        ) : (
+                            'Load more'
+                        )}
+                    </Button>
                 </div>
             )}
         </div>
