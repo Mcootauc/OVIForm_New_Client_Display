@@ -1,16 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import {
-    Card,
-    CardContent,
-    CardFooter,
-    CardHeader,
-    CardTitle,
-} from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Clipboard, Check, Dog, Cat, AlertCircle, Trash2 } from 'lucide-react';
+import { Clipboard, Check, Trash2, Mail, Phone, MapPin } from 'lucide-react';
 import type { PetRow, ClientRow } from '@/utils/supabase';
 import { formatDate } from '@/utils/format-date';
 import {
@@ -109,13 +101,6 @@ Secondary Phone: ${phoneFormatDash(secondaryContactPhone)}
         setShowDeleteDialog(false);
     };
 
-    const getPetIcon = (species: string | null | undefined) => {
-        const s = species?.toLowerCase();
-        if (s === 'dog') return <Dog className="h-5 w-5 text-[#03045E]" />;
-        if (s === 'cat') return <Cat className="h-5 w-5 text-[#03045E]" />;
-        return <AlertCircle className="h-5 w-5 text-[#03045E]" />;
-    };
-
     const getScientificName = (species: string | null | undefined) => {
         const s = species?.toLowerCase();
         if (s === 'dog') return 'Canine';
@@ -140,234 +125,184 @@ Secondary Phone: ${phoneFormatDash(secondaryContactPhone)}
         String(client?.secondary_contact_name ?? '').trim().length > 0 ||
         String(client?.secondary_contact_cell_phone ?? '').trim().length > 0;
 
+    // Spayed/Neutered badge — handles boolean or string values.
+    const snRaw = pet.spayed_or_neutered;
+    const snDisplay =
+        typeof snRaw === 'boolean'
+            ? snRaw
+                ? 'Yes'
+                : 'No'
+            : snRaw ?? 'Unknown';
+    const snYes =
+        typeof snRaw === 'boolean'
+            ? snRaw
+            : ['yes', 'true', 'y'].includes(
+                String(snRaw ?? '')
+                    .trim()
+                    .toLowerCase()
+            );
+
+    // Microchip badge — green when a chip value is present.
+    const microDisplay = pet.microchip ?? 'Unknown';
+    const microNorm = String(pet.microchip ?? '')
+        .trim()
+        .toLowerCase();
+    const microYes =
+        microNorm !== '' &&
+        !['no', 'none', 'unknown', 'n', 'false', '0'].includes(microNorm);
+
+    const pillClass = (yes: boolean) =>
+        `inline-flex items-center gap-[5px] whitespace-nowrap rounded-full border px-[11px] py-1 text-[11.5px] font-semibold ${yes
+            ? 'border-[#cfe9da] bg-[#e6f4ec] text-[#22774b]'
+            : 'border-[#e3e7f0] bg-[#f0f2f7] text-[#6b7488]'
+        }`;
+
+    const chipClass = (unknown: boolean) =>
+        `rounded-lg px-[11px] py-1 text-xs font-semibold ${unknown ? 'bg-[#C0091E]/10 text-[#C0091E]' : 'bg-[#eaf1f4] text-[#1f6675]'
+        }`;
+
     return (
         <>
-            <Card className="overflow-hidden border-[#737373]/20 bg-white hover:bg-white/95 transition-colors">
-                <CardHeader className="bg-[#737373]/5 pb-2">
-                    <div className="flex justify-between items-start">
-                        <CardTitle className="text-xl font-bold text-[#03045E]">
+            <div className="flex flex-col overflow-hidden rounded-2xl border border-[#e3e7f0] bg-white shadow-[0_1px_3px_rgba(20,26,82,0.05)]">
+                {/* Header */}
+                <div className="flex items-center gap-3 border-b border-[#eceff6] bg-[#f4f7fb] px-[18px] py-[15px]">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[11px] bg-[#141a52] text-[13.5px] font-bold text-white">
+                        {pet.initials}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                        <div className="text-[17px] font-bold tracking-[-0.01em] text-[#161d40]">
                             {client?.owner_name ?? 'Unknown owner'}
-                        </CardTitle>
-                        <Badge
-                            variant="outline"
-                            className="bg-[#56A0AE]/10 text-[#56A0AE] border-[#56A0AE]/30"
-                        >
-                            {pet.initials}
-                        </Badge>
-                    </div>
-                    <div className="text-sm text-[#737373]">
-                        Added on {formatDate(pet.created_at)}
-                    </div>
-                </CardHeader>
-                <CardContent className="pt-4 pb-2">
-                    <div className="space-y-4">
-                        {/* Owner Information */}
-                        <div>
-                            <h3 className="text-md font-medium text-[#03045E] mb-1">
-                                Owner Information
-                            </h3>
-                            <div className="space-y-1 text-sm">
-                                <div>
-                                    <span className="text-muted-foreground">
-                                        Name:
-                                    </span>{' '}
-                                    {client?.owner_name ?? 'Unknown'}
-                                </div>
-                                <div>
-                                    <span className="text-muted-foreground">
-                                        Email:
-                                    </span>{' '}
-                                    <span className="text-[#56A0AE] underline">
-                                        {client?.email ?? 'Unknown'}
-                                    </span>
-                                </div>
-                                <div>
-                                    <span className="text-muted-foreground">
-                                        Phone:
-                                    </span>{' '}
-                                    {phoneFormat(client?.cell_phone) || 'Unknown'}
-                                </div>
-                                <div>
-                                    <span className="text-muted-foreground">
-                                        Address:
-                                    </span>{' '}
-                                    {client?.street ?? 'Unknown'}, {client?.city ?? 'Unknown'},{' '}
-                                    {client?.state ?? 'Unknown'} {client?.zip_code ?? 'Unknown'}
-                                </div>
-                            </div>
                         </div>
-
-                        {/* Pet Information */}
-                        <div>
-                            <h3 className="text-md font-medium text-[#03045E] mb-1 flex items-center gap-1">
-                                {getPetIcon(pet.species)} Pet Information
-                            </h3>
-                            <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
-                                <div>
-                                    <span className="text-muted-foreground">
-                                        Name:
-                                    </span>{' '}
-                                    {pet.pet_name}
-                                </div>
-                                <div>
-                                    <span className="text-muted-foreground">
-                                        Color:
-                                    </span>{' '}
-                                    <span
-                                        className={
-                                            isUnknown(pet.color)
-                                                ? 'text-[#C0091E]'
-                                                : undefined
-                                        }
-                                    >
-                                        {pet.color ?? 'Unknown'}
-                                    </span>
-                                </div>
-                                <div>
-                                    <span className="text-muted-foreground">
-                                        Species:
-                                    </span>{' '}
-                                    <span
-                                        className={
-                                            isOtherSpecies(pet.species)
-                                                ? 'text-[#C0091E]'
-                                                : undefined
-                                        }
-                                    >
-                                        {pet.species ?? 'Unknown'}
-                                    </span>
-                                </div>
-                                <div>
-                                    <span className="text-muted-foreground">
-                                        Breed:
-                                    </span>{' '}
-                                    <span
-                                        className={
-                                            isUnknown(pet.breed)
-                                                ? 'text-[#C0091E]'
-                                                : undefined
-                                        }
-                                    >
-                                        {pet.breed ?? 'Unknown'}
-                                    </span>
-                                </div>
-                                <div>
-                                    <span className="text-muted-foreground">
-                                        Age:
-                                    </span>{' '}
-                                    {getAgeStringFromDate(pet.birth_date)}
-                                </div>
-                                <div>
-                                    <span className="text-muted-foreground">
-                                        Sex:
-                                    </span>{' '}
-                                    <span
-                                        className={
-                                            isUnknown(pet.sex)
-                                                ? 'text-[#C0091E]'
-                                                : undefined
-                                        }
-                                    >
-                                        {pet.sex ?? 'Unknown'}
-                                    </span>
-                                </div>
-
-                                <div className="col-span-2">
-                                    <span className="text-muted-foreground">
-                                        Spayed/Neutered:
-                                    </span>{' '}
-                                    <span
-                                        className={
-                                            isUnknown(
-                                                typeof pet.spayed_or_neutered ===
-                                                    'boolean'
-                                                    ? pet.spayed_or_neutered
-                                                        ? 'yes'
-                                                        : 'no'
-                                                    : pet.spayed_or_neutered
-                                            )
-                                                ? 'text-[#C0091E]'
-                                                : undefined
-                                        }
-                                    >
-                                        {pet.spayed_or_neutered ?? 'Unknown'}
-                                    </span>
-                                </div>
-                                <div className="col-span-2">
-                                    <span className="text-muted-foreground">
-                                        Microchip:
-                                    </span>{' '}
-                                    <span
-                                        className={
-                                            isUnknown(pet.microchip)
-                                                ? 'text-[#C0091E]'
-                                                : undefined
-                                        }
-                                    >
-                                        {pet.microchip ?? 'Unknown'}
-                                    </span>
-                                </div>
-                            </div>
+                        <div className="mt-px text-xs font-medium text-[#8a93ab]">
+                            Added {formatDate(pet.created_at)}
                         </div>
-
-                        {/* Secondary Contact Information */}
-                        {hasSecondaryContact && (
-                            <div>
-                                <h3 className="text-md font-medium text-[#03045E] mb-1">
-                                    Secondary Contact Information
-                                </h3>
-                                <div className="space-y-1 text-sm">
-                                    {client?.secondary_contact_name && (
-                                        <div>
-                                            <span className="text-muted-foreground">
-                                                Name:
-                                            </span>{' '}
-                                            {client.secondary_contact_name}
-                                        </div>
-                                    )}
-                                    {client?.secondary_contact_cell_phone && (
-                                        <div>
-                                            <span className="text-muted-foreground">
-                                                Phone:
-                                            </span>{' '}
-                                            {phoneFormat(
-                                                client.secondary_contact_cell_phone
-                                            )}
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-                        )}
                     </div>
-                </CardContent>
-                <CardFooter className="pt-2 flex gap-2">
+                </div>
+
+                {/* Body */}
+                <div className="flex flex-col gap-[15px] px-[18px] py-4">
+                    {/* Pet spotlight */}
+                    <div>
+                        <div className="mb-[9px] flex items-baseline justify-between gap-2.5">
+                            <span className="text-[17px] font-bold text-[#161d40]">
+                                {pet.pet_name}
+                            </span>
+                            <span
+                                className={`text-[12.5px] font-medium ${isUnknown(pet.color)
+                                        ? 'text-[#C0091E]'
+                                        : 'text-[#79839c]'
+                                    }`}
+                            >
+                                {pet.color ?? 'Unknown'}
+                            </span>
+                        </div>
+                        <div className="flex flex-wrap gap-1.5">
+                            <span
+                                className={chipClass(isOtherSpecies(pet.species))}
+                            >
+                                {pet.species ?? 'Unknown'}
+                            </span>
+                            <span className={chipClass(isUnknown(pet.breed))}>
+                                {pet.breed ?? 'Unknown'}
+                            </span>
+                            <span className={chipClass(isUnknown(pet.sex))}>
+                                {pet.sex ?? 'Unknown'}
+                            </span>
+                            <span className={chipClass(false)}>
+                                {getAgeStringFromDate(pet.birth_date)}
+                            </span>
+                        </div>
+                        <div className="mt-2.5 flex flex-wrap gap-2">
+                            <span className={pillClass(snYes)}>
+                                Spayed/Neutered: {snDisplay}
+                            </span>
+                            <span className={pillClass(microYes)}>
+                                Microchip: {microDisplay}
+                            </span>
+                        </div>
+                    </div>
+
+                    {/* Owner contact */}
+                    <div className="flex flex-col gap-[9px] border-t border-[#f0f2f7] pt-[14px]">
+                        <div className="mb-px text-sm font-bold text-[#1b2240]">
+                            {client?.owner_name ?? 'Unknown'}
+                        </div>
+                        <div className="flex items-center gap-[9px] text-[13.5px] font-medium text-[#3a4156]">
+                            <Mail className="h-[15px] w-[15px] shrink-0 text-[#9aa3b8]" />
+                            {client?.email ? (
+                                <a
+                                    href={`mailto:${client.email}`}
+                                    className="break-all text-[#2c7d8c] no-underline"
+                                >
+                                    {client.email}
+                                </a>
+                            ) : (
+                                <span>Unknown</span>
+                            )}
+                        </div>
+                        <div className="flex items-center gap-[9px] text-[13.5px] font-medium text-[#3a4156]">
+                            <Phone className="h-[15px] w-[15px] shrink-0 text-[#9aa3b8]" />
+                            {phoneFormat(client?.cell_phone) || 'Unknown'}
+                        </div>
+                        <div className="flex items-start gap-[9px] text-[13.5px] font-medium text-[#3a4156]">
+                            <MapPin className="mt-px h-[15px] w-[15px] shrink-0 text-[#9aa3b8]" />
+                            <span>
+                                {client?.street ?? 'Unknown'},{' '}
+                                {client?.city ?? 'Unknown'},{' '}
+                                {client?.state ?? 'Unknown'}{' '}
+                                {client?.zip_code ?? 'Unknown'}
+                            </span>
+                        </div>
+                    </div>
+
+                    {/* Secondary Contact */}
+                    {hasSecondaryContact && (
+                        <div className="flex items-center justify-between gap-2.5 rounded-[9px] bg-[#f6f8fb] px-3 py-[9px] text-[13px] font-medium text-[#3a4156]">
+                            <span>
+                                <span className="text-[#9aa3b8]">
+                                    Secondary ·{' '}
+                                </span>
+                                <span className="font-semibold text-[#1b2240]">
+                                    {client?.secondary_contact_name ?? ''}
+                                </span>
+                            </span>
+                            <span>
+                                {phoneFormat(
+                                    client?.secondary_contact_cell_phone
+                                )}
+                            </span>
+                        </div>
+                    )}
+                </div>
+
+                {/* Footer */}
+                <div className="mt-4 flex gap-[9px] border-t border-[#eef1f6] px-5 py-[15px]">
                     <Button
                         variant="outline"
-                        size="sm"
-                        className="flex-1 text-[#56A0AE] border-[#56A0AE]/30 hover:bg-[#56A0AE] hover:text-white"
+                        className="h-11 flex-1 rounded-[10px] text-[#56A0AE] border-[#56A0AE]/30 hover:bg-[#56A0AE] hover:text-white"
                         onClick={copyToClipboard}
                     >
                         {copied ? (
                             <>
-                                <Check className="h-4 w-4 mr-2" /> Copied
+                                <Check className="mr-2 h-4 w-4" /> Copied!
                             </>
                         ) : (
                             <>
-                                <Clipboard className="h-4 w-4 mr-2" /> Copy Info
+                                <Clipboard className="mr-2 h-4 w-4" /> Copy Info
                             </>
                         )}
                     </Button>
                     <Button
                         variant="destructive"
-                        size="sm"
-                        className="bg-[#C0091E] hover:bg-[#C0091E]/70 text-white"
+                        title="Delete submission"
+                        className="h-11 w-11 rounded-[10px] bg-[#C0091E] hover:bg-[#C0091E]/70 text-white"
                         onClick={() => setShowDeleteDialog(true)}
                         disabled={isDeleting}
                     >
                         <Trash2 className="h-4 w-4" />
                     </Button>
-                </CardFooter>
-            </Card>
+                </div>
+            </div>
 
             <AlertDialog
                 open={showDeleteDialog}

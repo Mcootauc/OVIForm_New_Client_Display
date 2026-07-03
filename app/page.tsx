@@ -8,7 +8,8 @@ import { ThemeProvider } from '@/components/theme-provider';
 import ProtectedRoute from '@/components/protected-route';
 import Header from '@/components/header';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Users, PawPrint } from 'lucide-react';
+import { Users, Clock } from 'lucide-react';
+
 import { getHospital } from '@/lib/edgeFunctions';
 
 export default function Home() {
@@ -40,36 +41,39 @@ export default function Home() {
             <ProtectedRoute>
                 <div className="min-h-screen bg-[#FEFEFE] flex flex-col">
                     <Header title={hospital?.name || 'Loading...'} />
-                    <main className="flex-1">
-                        <div className="container mx-auto py-8 px-4">
-                            <Tabs defaultValue="clients" className="w-full">
-                                <TabsList className="grid w-full max-w-md grid-cols-1 mb-8 bg-[#737373]/5">
+                    <Tabs defaultValue="clients" className="flex flex-1 flex-col">
+                        <div className="border-b border-[#737373]/20 bg-white">
+                            <div className="container mx-auto px-4">
+                                <TabsList className="h-auto justify-start gap-8 rounded-none bg-transparent p-0">
                                     <TabsTrigger
                                         value="clients"
-                                        className="flex items-center gap-2 data-[state=active]:bg-[#56A0AE] data-[state=active]:text-white hover:text-[#56A0AE] data-[state=active]:hover:text-white"
+                                        className="gap-2 rounded-none border-b-2 border-transparent bg-transparent px-1 py-4 text-sm font-medium text-[#8a93ab] shadow-none data-[state=active]:border-[#56A0AE] data-[state=active]:bg-transparent data-[state=active]:text-[#56A0AE] data-[state=active]:shadow-none"
                                     >
                                         <Users className="h-4 w-4" />
                                         Client Information
                                     </TabsTrigger>
-                                    {/* <TabsTrigger
-                                        value="pets"
-                                        className="flex items-center gap-2 data-[state=active]:bg-[#56A0AE] data-[state=active]:text-white hover:text-[#56A0AE] data-[state=active]:hover:text-white"
+                                    <TabsTrigger
+                                        value="waitlist"
+                                        className="group gap-2 rounded-none border-b-2 border-transparent bg-transparent px-1 py-4 text-sm font-medium text-[#8a93ab] shadow-none data-[state=active]:border-[#56A0AE] data-[state=active]:bg-transparent data-[state=active]:text-[#56A0AE] data-[state=active]:shadow-none"
                                     >
-                                        <PawPrint className="h-4 w-4" />
-                                        Pet Gallery
-                                    </TabsTrigger> */}
+                                        <Clock className="h-4 w-4" />
+                                        Waitlist
+                                        <span className="ml-1 text-xs text-[#737373] group-data-[state=active]:text-[#56A0AE]">5</span>
+                                    </TabsTrigger>
                                 </TabsList>
-
+                            </div>
+                        </div>
+                        <main className="flex-1">
+                            <div className="container mx-auto px-4 py-8">
                                 <TabsContent value="clients">
                                     <ClientGrid />
                                 </TabsContent>
-                                {/* 
-                                <TabsContent value="pets">
-                                    <PetGrid />
-                                </TabsContent> */}
-                            </Tabs>
-                        </div>
-                    </main>
+                                <TabsContent value="waitlist">
+
+                                </TabsContent>
+                            </div>
+                        </main>
+                    </Tabs>
                     <footer className="py-6">
                         <p className="text-center text-sm text-[#737373]">
                             &copy; OVIForm. All rights reserved.
