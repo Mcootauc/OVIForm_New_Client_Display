@@ -39,7 +39,7 @@ export default function ClientGrid() {
             if (error) {
                 throw error;
             }
-            
+
             const rows = (data as unknown as Submission[]) || [];
             setHasMore(rows.length === PAGE_SIZE);
             setSubmissions((prev) => (append ? [...prev, ...rows] : rows));
@@ -78,9 +78,8 @@ export default function ClientGrid() {
             if (newSubmissionCount > 0) {
                 toast({
                     title: 'New submissions found!',
-                    description: `${newSubmissionCount} new submission${
-                        newSubmissionCount === 1 ? '' : 's'
-                    } added.`,
+                    description: `${newSubmissionCount} new submission${newSubmissionCount === 1 ? '' : 's'
+                        } added.`,
                 });
             } else {
                 toast({
@@ -161,7 +160,7 @@ export default function ClientGrid() {
     return (
         <div className="space-y-6">
             <div className="flex justify-between items-center">
-                <h2 className="text-2xl font-semibold text-[#03045E]">
+                <h2 className="text-2xl font-semibold text-[#1b2240]">
                     {uniqueClientCount} Recent Submission{uniqueClientCount !== 1 ? 's' : ''}
                 </h2>
                 <Button
@@ -193,7 +192,7 @@ export default function ClientGrid() {
                     <p className="text-muted-foreground">No submissions found.</p>
                 </div>
             ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 items-start gap-6 md:grid-cols-2 lg:grid-cols-3">
                     {submissions.map((submission) => (
                         <ClientCard
                             key={submission.id}

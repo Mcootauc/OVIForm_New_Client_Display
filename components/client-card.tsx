@@ -2,7 +2,17 @@
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Clipboard, Check, Trash2, Mail, Phone, MapPin } from 'lucide-react';
+import {
+    Clipboard,
+    Check,
+    Trash2,
+    Mail,
+    Phone,
+    MapPin,
+    Dog,
+    Cat,
+    User,
+} from 'lucide-react';
 import type { PetRow, ClientRow } from '@/utils/supabase';
 import { formatDate } from '@/utils/format-date';
 import {
@@ -32,7 +42,12 @@ export default function ClientCard({ pet, client, onDelete }: ClientCardProps) {
         const normalized = String(value ?? '')
             .trim()
             .toLowerCase();
-        return normalized === 'unknown';
+        return normalized === '' || normalized === 'unknown';
+    };
+
+    const displayWithLabel = (label: string, value: unknown) => {
+        if (isUnknown(value)) return `${label}: Unknown`;
+        return String(value);
     };
 
     const isOtherSpecies = (value: unknown) => {
@@ -127,12 +142,10 @@ Secondary Phone: ${phoneFormatDash(secondaryContactPhone)}
 
     // Spayed/Neutered badge — handles boolean or string values.
     const snRaw = pet.spayed_or_neutered;
-    const snDisplay =
-        typeof snRaw === 'boolean'
-            ? snRaw
-                ? 'Yes'
-                : 'No'
-            : snRaw ?? 'Unknown';
+    let snDisplay = snRaw ?? 'Unknown';
+    if (typeof snRaw === 'boolean') {
+        snDisplay = snRaw ? 'Yes' : 'No';
+    }
     const snYes =
         typeof snRaw === 'boolean'
             ? snRaw
@@ -161,6 +174,9 @@ Secondary Phone: ${phoneFormatDash(secondaryContactPhone)}
         `rounded-lg px-[11px] py-1 text-xs font-semibold ${unknown ? 'bg-[#C0091E]/10 text-[#C0091E]' : 'bg-[#eaf1f4] text-[#1f6675]'
         }`;
 
+    const petAge = getAgeStringFromDate(pet.birth_date);
+    const isDog = String(pet.species ?? '').toLowerCase() === 'dog';
+
     return (
         <>
             <div className="flex flex-col overflow-hidden rounded-2xl border border-[#e3e7f0] bg-white shadow-[0_1px_3px_rgba(20,26,82,0.05)]">
@@ -170,6 +186,7 @@ Secondary Phone: ${phoneFormatDash(secondaryContactPhone)}
                         {pet.initials}
                     </div>
                     <div className="min-w-0 flex-1">
+
                         <div className="text-[17px] font-bold tracking-[-0.01em] text-[#161d40]">
                             {client?.owner_name ?? 'Unknown owner'}
                         </div>
@@ -184,32 +201,38 @@ Secondary Phone: ${phoneFormatDash(secondaryContactPhone)}
                     {/* Pet spotlight */}
                     <div>
                         <div className="mb-[9px] flex items-baseline justify-between gap-2.5">
-                            <span className="text-[17px] font-bold text-[#161d40]">
-                                {pet.pet_name}
-                            </span>
+                            <div className="flex flex-row items-center gap-[6px]">
+                                {isDog ? <Dog className="h-5 w-5" /> : <Cat className="h-5 w-5" />}
+                                <span className="text-[17px] font-bold text-[#161d40]">
+                                    {pet.pet_name}
+                                </span>
+                            </div>
                             <span
                                 className={`text-[12.5px] font-medium ${isUnknown(pet.color)
-                                        ? 'text-[#C0091E]'
-                                        : 'text-[#79839c]'
+                                    ? 'text-[#C0091E]'
+                                    : 'text-[#79839c]'
                                     }`}
                             >
-                                {pet.color ?? 'Unknown'}
+                                {displayWithLabel('Color', pet.color)}
                             </span>
                         </div>
                         <div className="flex flex-wrap gap-1.5">
                             <span
-                                className={chipClass(isOtherSpecies(pet.species))}
+                                className={chipClass(
+                                    isOtherSpecies(pet.species) ||
+                                    isUnknown(pet.species)
+                                )}
                             >
-                                {pet.species ?? 'Unknown'}
+                                {displayWithLabel('Species', pet.species)}
                             </span>
                             <span className={chipClass(isUnknown(pet.breed))}>
-                                {pet.breed ?? 'Unknown'}
+                                {displayWithLabel('Breed', pet.breed)}
                             </span>
                             <span className={chipClass(isUnknown(pet.sex))}>
-                                {pet.sex ?? 'Unknown'}
+                                {displayWithLabel('Sex', pet.sex)}
                             </span>
-                            <span className={chipClass(false)}>
-                                {getAgeStringFromDate(pet.birth_date)}
+                            <span className={chipClass(isUnknown(petAge))}>
+                                {displayWithLabel('Age', petAge)}
                             </span>
                         </div>
                         <div className="mt-2.5 flex flex-wrap gap-2">
@@ -224,8 +247,11 @@ Secondary Phone: ${phoneFormatDash(secondaryContactPhone)}
 
                     {/* Owner contact */}
                     <div className="flex flex-col gap-[9px] border-t border-[#f0f2f7] pt-[14px]">
-                        <div className="mb-px text-sm font-bold text-[#1b2240]">
-                            {client?.owner_name ?? 'Unknown'}
+                        <div className="flex flex-row gap-[9px] items-center">
+                            <User className="h-4 w-4" />
+                            <div className="mb-px text-sm font-bold text-[#1b2240]">
+                                {client?.owner_name ?? 'Unknown name'}
+                            </div>
                         </div>
                         <div className="flex items-center gap-[9px] text-[13.5px] font-medium text-[#3a4156]">
                             <Mail className="h-[15px] w-[15px] shrink-0 text-[#9aa3b8]" />
@@ -242,15 +268,15 @@ Secondary Phone: ${phoneFormatDash(secondaryContactPhone)}
                         </div>
                         <div className="flex items-center gap-[9px] text-[13.5px] font-medium text-[#3a4156]">
                             <Phone className="h-[15px] w-[15px] shrink-0 text-[#9aa3b8]" />
-                            {phoneFormat(client?.cell_phone) || 'Unknown'}
+                            {phoneFormat(client?.cell_phone) || 'Unknown cell phone'}
                         </div>
                         <div className="flex items-start gap-[9px] text-[13.5px] font-medium text-[#3a4156]">
                             <MapPin className="mt-px h-[15px] w-[15px] shrink-0 text-[#9aa3b8]" />
                             <span>
-                                {client?.street ?? 'Unknown'},{' '}
-                                {client?.city ?? 'Unknown'},{' '}
-                                {client?.state ?? 'Unknown'}{' '}
-                                {client?.zip_code ?? 'Unknown'}
+                                {client?.street ?? 'Unknown street'},{' '}
+                                {client?.city ?? 'Unknown city'},{' '}
+                                {client?.state ?? 'Unknown state'}{' '}
+                                {client?.zip_code ?? 'Unknown zip code'}
                             </span>
                         </div>
                     </div>
@@ -295,14 +321,14 @@ Secondary Phone: ${phoneFormatDash(secondaryContactPhone)}
                     <Button
                         variant="destructive"
                         title="Delete submission"
-                        className="h-11 w-11 rounded-[10px] bg-[#C0091E] hover:bg-[#C0091E]/70 text-white"
+                        className="h-11 w-11 rounded-[10px] bg-[#C0091E] p-0 text-white hover:bg-[#C0091E]/70"
                         onClick={() => setShowDeleteDialog(true)}
                         disabled={isDeleting}
                     >
-                        <Trash2 className="h-4 w-4" />
+                        <Trash2 className="h-5 w-5" />
                     </Button>
                 </div>
-            </div>
+            </div >
 
             <AlertDialog
                 open={showDeleteDialog}
