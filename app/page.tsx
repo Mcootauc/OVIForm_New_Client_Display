@@ -3,10 +3,10 @@
 import { useEffect, useState } from 'react';
 
 import ClientGrid from '@/components/client-grid';
-import PetGrid from '@/components/pet-grid';
 import { ThemeProvider } from '@/components/theme-provider';
 import ProtectedRoute from '@/components/protected-route';
 import Header from '@/components/header';
+import Waitlist from '@/components/waitlist';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Users, Clock } from 'lucide-react';
 
@@ -14,6 +14,7 @@ import { getHospital } from '@/lib/edgeFunctions';
 
 export default function Home() {
     const [hospital, setHospital] = useState<Hospital | null>(null);
+    const [waitlistCount, setWaitlistCount] = useState(0);
 
     type Hospital = {
         id: string;
@@ -47,18 +48,20 @@ export default function Home() {
                                 <TabsList className="h-auto justify-start gap-8 rounded-none bg-transparent p-0">
                                     <TabsTrigger
                                         value="clients"
-                                        className="gap-2 rounded-none border-b-2 border-transparent bg-transparent px-1 py-4 text-sm font-medium text-[#8a93ab] shadow-none data-[state=active]:border-[#56A0AE] data-[state=active]:bg-transparent data-[state=active]:text-[#56A0AE] data-[state=active]:shadow-none"
+                                        className="gap-2 rounded-none border-b-[3px] border-transparent bg-transparent px-1 py-4 text-[15px] font-bold text-[#79839c] shadow-none data-[state=active]:border-[#56A0AE] data-[state=active]:bg-transparent data-[state=active]:text-[#56A0AE] data-[state=active]:shadow-none"
                                     >
-                                        <Users className="h-4 w-4" />
-                                        Client Information
+                                        <Users className="h-[17px] w-[17px]" />
+                                        Client Info
                                     </TabsTrigger>
                                     <TabsTrigger
                                         value="waitlist"
-                                        className="group gap-2 rounded-none border-b-2 border-transparent bg-transparent px-1 py-4 text-sm font-medium text-[#8a93ab] shadow-none data-[state=active]:border-[#56A0AE] data-[state=active]:bg-transparent data-[state=active]:text-[#56A0AE] data-[state=active]:shadow-none"
+                                        className="group gap-2 rounded-none border-b-[3px] border-transparent bg-transparent px-1 py-4 text-[15px] font-bold text-[#79839c] shadow-none data-[state=active]:border-[#56A0AE] data-[state=active]:bg-transparent data-[state=active]:text-[#56A0AE] data-[state=active]:shadow-none"
                                     >
-                                        <Clock className="h-4 w-4" />
+                                        <Clock className="h-[17px] w-[17px]" />
                                         Waitlist
-                                        <span className="ml-1 text-xs text-[#737373] group-data-[state=active]:text-[#56A0AE]">5</span>
+                                        <span className="ml-0.5 inline-flex h-5 min-w-[20px] items-center justify-center rounded-full bg-[#eef1f7] px-1.5 text-[11.5px] font-bold text-[#79839c] group-data-[state=active]:bg-[#56A0AE] group-data-[state=active]:text-white">
+                                            {waitlistCount}
+                                        </span>
                                     </TabsTrigger>
                                 </TabsList>
                             </div>
@@ -69,7 +72,7 @@ export default function Home() {
                                     <ClientGrid />
                                 </TabsContent>
                                 <TabsContent value="waitlist">
-
+                                    <Waitlist hospitalId={hospital?.id} onCountChange={setWaitlistCount} />
                                 </TabsContent>
                             </div>
                         </main>

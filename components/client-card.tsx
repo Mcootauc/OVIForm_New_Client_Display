@@ -200,7 +200,7 @@ Secondary Phone: ${phoneFormatDash(secondaryContactPhone)}
                 <div className="flex flex-col gap-[15px] px-[18px] py-4">
                     {/* Pet spotlight */}
                     <div>
-                        <div className="mb-[9px] flex items-baseline justify-between gap-2.5">
+                        <div className="mb-[9px] flex items-center justify-between gap-2.5">
                             <div className="flex flex-row items-center gap-[6px]">
                                 {isDog ? <Dog className="h-5 w-5" /> : <Cat className="h-5 w-5" />}
                                 <span className="text-[17px] font-bold text-[#161d40]">
@@ -304,8 +304,7 @@ Secondary Phone: ${phoneFormatDash(secondaryContactPhone)}
                 {/* Footer */}
                 <div className="mt-4 flex gap-[9px] border-t border-[#eef1f6] px-5 py-[15px]">
                     <Button
-                        variant="outline"
-                        className="h-11 flex-1 rounded-[10px] text-[#56A0AE] border-[#56A0AE]/30 hover:bg-[#56A0AE] hover:text-white"
+                        className="h-11 flex-1 rounded-[10px] bg-[#56A0AE] text-white hover:bg-[#478d99]"
                         onClick={copyToClipboard}
                     >
                         {copied ? (
