@@ -19,6 +19,21 @@ const config = {
       },
     },
     extend: {
+      fontFamily: {
+        sans: [
+          "var(--font-public-sans)",
+          "system-ui",
+          "-apple-system",
+          "Segoe UI",
+          "sans-serif",
+        ],
+        display: [
+          "var(--font-jakarta)",
+          "var(--font-public-sans)",
+          "system-ui",
+          "sans-serif",
+        ],
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",

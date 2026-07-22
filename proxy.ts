@@ -2,6 +2,7 @@ import { createSupabaseMiddlewareClient } from '@/utils/supabase/server';
 import { type NextRequest, NextResponse } from 'next/server';
 
 const publicRoutes = new Set([
+    '/',
     '/login',
     '/unauthorized',
     '/privacy-policy',
@@ -69,9 +70,9 @@ export async function proxy(request: NextRequest) {
         return redirectWithCookies(request, response, '/login');
     }
 
-    // User is validated and path is /login so take user to homepage
+    // User is validated and path is /login so take user to the dashboard
     if (user && pathname === '/login') {
-        return redirectWithCookies(request, response, '/');
+        return redirectWithCookies(request, response, '/dashboard');
     }
 
     return response;
