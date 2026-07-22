@@ -18,8 +18,11 @@ const plusJakartaSans = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
-    title: 'Pet Client Manager',
-    description: 'Manage pet client information',
+    title: {
+        template: '%s | OVIForm',
+        default: 'OVIForm | Veterinary Dashboard',
+    },
+    description: 'Internal veterinary dashboard for managing client and pet information',
 };
 
 export default function RootLayout({
