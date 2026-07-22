@@ -1,0 +1,1 @@
+create index if not exists pets_v2_hospital_id_created_at_idx on public.pets (hospital_id, created_at desc);
